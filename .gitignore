@@ -1,0 +1,9 @@
+# Latex side-products
+*.toc
+*.log
+*.aux
+*.dvi
+*.fdb_latexmk
+*.synctex.gz
+*.fls
+*.~
