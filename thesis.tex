@@ -32,9 +32,9 @@
 
 \fancyhf{}
 %\renewcommand{\headrulewidth}{0pt}
-\fancyhead[RO]{\leftmark}
+\fancyhead[LO]{\leftmark}
 \fancyhead[RE]{SECTION \rightmark}
-\fancyhead[LO,LE]{\thepage}
+\fancyhead[RO,LE]{\thepage}
 
 \pagestyle{fancy}
 
@@ -64,7 +64,7 @@ morecomment=[l][\color{red}]{\#}
 
 % Macro for source code inclusion. Moves to main
 % directory then takes the further path as argument
-\newcommand{\code}[1]{\lstinputlisting{#1}}
+\newcommand{\code}[2][1]{\lstinputlisting[firstnumber=#1]{#2}}
 
 \newcommand{\citebs}[1]{(Mitchell, 2008, p. #1)}
 
@@ -178,35 +178,23 @@ When a signal's frequency exceeds the Nyquist limit, it is said to produce an \e
 Another interesting property of digital sound, which is not encountered in the analog world, is that it can overflow. When we attempt to increase the loudness of something in the analog world, e.g. by hitting a drum more intensely, the expected result is a louder sound. In the digital realm however, it may occur that attempting to increase a signal's amplitude does not result in an increased loudness, but in distortion. The cause of this phenomenon lies in the way digital audio is stored. Since computer memory is a finite resource, each sample has a dedicated portion of computer memory allocated to it. For example, the Waveform Audio File Format (WAVE), a common computer file format for audio data, stores each sample of an audio track as a 16-bit signed integer. A 16-bit signed integer gives a possible range of $-2^{16-1}$ to $2^{16-1}$ ($16-1$ because the most significant bit is used as the sign bit in two's complement representation). This means that a signal with an amplitude of 1 will be stored as 32767, an amplitude of 0.5 as 16384, an amplitude of -1 as -32768 and so on. If one tries to increase the amplitude of a signal whose value has already saturated the available range and space allocated to it, in this case 32767 on the positive end and -32768 on the negative end, the result is that the integer with which the sample is stored \emph{overflows}. Because WAVE files (and many other storage media) store samples as \emph{signed} integers, overflow always results in a change of sign:
 
 $$32767_{10} = 0111111111111111_{2}$$
-
 $$0111111111111111_{2} + 1 = 1000000000000000_{2} = -32768_{10}$$
-
 $$1000000000000000_{2} - 1 = 0111111111111111_{2} = 32767_{10}$$
 
 A visualization of the result of increasing the amplitude of a signal with a saturated value (an amplitude of 1), shown in Figure \ref{fig:no-over}, is given in Figure \ref{fig:over}.
 
-\begin{figure}[p]
-
+\begin{figure}[h!]
   \centering
-
   \includegraphics[scale=0.5]{img/no-over}
-
   \caption{A typical sinusoidal signal with an amplitude of 1. The integer range provided by the allocated memory for the top-most sample is saturated, meaning it is equal to $32767_{10}$ or $0111111111111111_{2}$.}
-
   \label{fig:no-over}
-
 \end{figure}
 
-\begin{figure}[p]
-
+\begin{figure}[h!]
   \centering
-
   \includegraphics[scale=0.5]{img/over}
-
-  \caption{What happens when the amplitude of the signal from Figure \ref{fig:no-over} is increased by a factor of 2. Because the top-most sample had a saturated value, increasing it results in overflow into the negative range. Also other samples have overflowed and thus changed their sign. Because of the way two's-complement representation is implemented, the signal continues it's path as if no overflow had ever occurred. The only difference being, of course, that the sign has changed mid-way.}
-
+  \caption{What happens when the amplitude of the signal from Figure \ref{fig:no-over} is increased by a factor of 2. Multiple samples have overflowed and thus changed their sign. Because of the way two's-complement representation is implemented, the signal continues it's path as if no overflow had ever occurred. The only difference being, of course, that the sign has changed mid-way. }
   \label{fig:over}
-
 \end{figure}
 
 \chapter{Generating Sound}
@@ -391,13 +379,140 @@ A triangle wave can be seen as a combination of a ramp wave and a sawtooth wave,
 
 \subsection{Additive Synthesis}
 
-The second method, Additive Synthesis, produces waveforms that, despite not being mathematically perfect, are closer to the waveforms found naturally. This method involves the summation of a finite set of sine waves with varying parameters and is often called Fourier Synthesis, after the 18th century French scientist, Joseph Fourier, who first described the process and associated phenomena of summing sine and cosine waves to produce complex waveforms.
+The second method of generating complex waveforms, Additive Synthesis, produces waveforms that, despite not being mathematically perfect, are closer to the waveforms found naturally. This method involves the summation of a theoretically infinite, practically finite set of sine and/or cosine waves with varying parameters and is often called Fourier Synthesis, after the 18th century French scientist, Joseph Fourier, who first described the process and associated phenomena of summing sine and cosine waves to produce complex waveforms. This calculation of a complex, periodic waveform from a sum of sine and cosine functions is also called a Fourier Transform or a Fourier Series, both part of the Fourier Theorem. In a Fourier Series, a single sine/cosine component is either called a harmonic, an overtone or a partial. All three name the same idea of a waveform with a frequency that is an \emph{integer multiple} of some fundamental pitch or frequency. \citebs{64} Throughout this thesis the term \emph{partial} will be preferred. \\\\Equation 2.13 gives the general definition of a discrete Fourier Transform. Equation 2.14 shows a simplified version of Equation 2.13. Table \ref{code:partial} presents a C++ struct to represent a single partial and Tables \ref{code:add1} and \ref{code:add2} a piece of C++ code to compute one period of any Fourier Series.
+
+\begin{figure}[h!]
+  $f(t) = \frac{a_{0}}{2} + \sum\limits_{n=1}^\infty (a_{n} \cos(\omega n t) = b_{n} \sin(\omega n t))$
+  \caption*{\textbf{Equation 2.13: }Formula to calculate an infinite Fourier series, where $\frac{a_{n}}{2}$ is the center amplitude, $a_{n}$ and $b_{n}$ the partial amplitudes and $\omega$ the angular frequency, which is equal to $2 \pi f$.}
+  \label{fig:fourier1}
+\end{figure}
+
+\begin{figure}[h!]
+  $f(t) = \sum\limits_{n=1}^N a_{n} \sin(\omega n t + \phi_{n})$
+  \caption*{\textbf{Equation 2.14:} Simplificiation of Equation 2.13. Note the change from a computationally impossible infinite series to a more practical finite series. Because a cosine wave is a sine wave shifted by 90\degree or $\frac{\pi}{2}$ radians, the $\cos$ function can be eliminated and replaced by an appropiate $\sin$ function with a phase shift $\phi_{n}$.}
+  \label{fig:fourier2}
+\end{figure}
+
+\begin{table}
+  \sidecap{C++ code to represent a single partial in a Fourier Series.}{code:partial} {\code{code/partial.cpp}}
+\end{table}
+
+\begin{table}
+  \sidecap{}{code:add1}{\code{code/add1.cpp}}
+\end{table}
+
+\begin{table}
+  \sidecap{\emph{Continuation of Table \ref{code:add1}}. C++ program to produce one period of an additively synthesized complex waveform, given a start and end iterator to a container of partials, a buffer length, a maximum, "master", amplitude, a boolean whether or not to apply sigma approximation and lastly a maximum bit width parameter.}{code:add2}{\code[56]{code/add2.cpp}}
+\end{table}
+
+\noindent The following paragraphs will examine how the four waveforms presented in Section 2.2.1, the square, the sawtooth, the ramp and the triangle wave, can be synthesized additively.
+
+\subsubsection{Square Waves}
+
+When speaking of Additive or Fourier Synthesis, a square wave is the result of summing all odd-numbered partials (3rd, 5th, 7th etc.) at a respective amplitude equal to the reciprocal of their partial number ($\frac{1}{3}$, $\frac{1}{5}$, $\frac{1}{7}$ etc.). The amplitude of each partial must decrease with increasing partial numbers to prevent amplitude overflow. A mathematical equation for such a square wave with $N$ partials is given by Equation \ref{eq:asquare}, where $2n - 1$ makes the series use only odd partials. A good maximum number of partials $N$ for near-perfect but still naturally sounding waveforms is 64, a value determined empirically. Higher numbers do not produce significant improvements in sound quality. Table \ref{code:asquare} displays the C++ code needed to produce one period of a square wave in conjuction with the \texttt{additive} function from Tables \ref{code:add1} and \ref{code:add2}. Figure \ref{fig:square} shows the result of summing 2, 4, 8, 16, 32 and finally 64 partials.
+
+\begin{equation}
+  f(t) = \sum\limits_{n=1}^N \frac{1}{2n -1} \sin(\omega (2n - 1) t)
+  \label{eq:asquare}
+\end{equation}
+
+\begin{figure}
+
+  \CenterFloatBoxes
+
+  \begin{floatrow}
+
+    \ffigbox{\caption{} \label{fig:square}}{ \includegraphics[scale=0.12]{img/square}}
+
+    \ttabbox{\caption{} \label{code:asquare}}{\code{code/asquare.cpp}}
+
+  \end{floatrow}
+
+\end{figure}
+
+\pagebreak
+
+\subsubsection{Sawtooth Waves}
+
+A sawtooth wave is slightly simpler to create through Additive Synthesis, as it requires the summation of every partial rather than only the odd-numbered ones. The respective amplitude is again the reciprocal of the partial number. Equation \ref{eq:asaw} gives a mathematical definition for a sawtooth wave, Figure \ref{fig:saw} displays sawtooth functions with various partial numbers and Table \ref{code:asaw} shows C++ code to generate such functions.
+
+\begin{equation}
+  f(t) = \sum\limits_{n=1}^N \frac{1}{n} \sin(\omega n t)
+  \label{eq:asaw}
+\end{equation}
+
+\begin{figure}[h!]
+
+  \CenterFloatBoxes
+
+  \begin{floatrow}
+
+    \ffigbox{\caption{} \label{fig:saw}}{ \includegraphics[scale=0.12]{img/saw}}
+
+    \ttabbox{\caption{} \label{code:asaw}}{\code{code/asaw.cpp}}
+
+  \end{floatrow}
+
+\end{figure}
+
+\pagebreak
+
+\subsubsection{Ramp Waves}
+
+Ramp waves are essentially the inverse of sawtooth waves. Therefore, we can simply sum sinusoids as we did for a sawtooth function but change the sign of each partial's amplitude to negative instead of positive. Equation \ref{eq:aramp} gives the mathematical definition, Figure \ref{fig:ramp} displays a set of ramp waveforms with different partial numbers and Table \ref{code:aramp} again shows the accompanying C++ code.
+
+\begin{equation}
+  f(t) = \sum\limits_{n=1}^N -\frac{1}{n} \sin(\omega n t)
+  \label{eq:aramp}
+\end{equation}
+
+\begin{figure}[h!]
+
+  \CenterFloatBoxes
+
+  \begin{floatrow}
+
+    \ffigbox{\caption{} \label{fig:ramp}}{ \includegraphics[scale=0.12]{img/ramp}}
+
+    \ttabbox{\caption{} \label{code:aramp}}{\code{code/aramp.cpp}}
+
+  \end{floatrow}
+
+\end{figure}
+
+\subsubsection{Triangle Waves}
+
+The process of generating triangle waves additively differs from previous waveforms. The amplitude of each partial of a triangle waveform is no longer the reciprocal of the partial number, $\frac{1}{n}$, but now the inverse of the partial number squared: $\frac{1}{n^2}$. Moreover, the sign of the amplitude alternates for each partial in the series. As for square waves, only odd-numbered partials are used. Mathematically, such a triangle wave is defined as shown in Equation \ref{eq:atri1} or, more concisely, in Equation \ref{eq:atri2}. Figure \ref{fig:tri} displays such a triangle wave with various partial numbers (2,4,8,16,32 and 64) and Table \ref{code:atri} implements C++ code to compute a triangle wave.
+
+\begin{equation}
+  f(t) = \sum\limits_{n=1}^\frac{N}{2} \frac{\sin(\omega (4n-3) t)}{(4n-3)^2} - \frac{\sin(\omega (4n-1) t)}{(4n-1)^2}
+  \label{eq:atri1}
+\end{equation}
+
+\begin{equation}
+  f(t) = \sum\limits_{n=0}^N \frac{(-1)^n}{(2n+1)^2} \sin(\omega (2n + 1) t)
+  \label{eq:atri2}
+\end{equation}
+
+\begin{figure}
+
+  \CenterFloatBoxes
+
+  \begin{floatrow}
+
+    \ffigbox{\caption{} \label{fig:tri}}{ \includegraphics[scale=0.12]{img/tri}}
+
+    \ttabbox{\caption{} \label{code:atri}}{\code{code/atri.cpp}}
+
+  \end{floatrow}
+
+\end{figure}
 
 \section{Real-time calculation versus Wavetable lookup}
 
 Before the generation of more complex waveforms than the sine and cosine waves from section 2.1 can be discussed, the two options for playing back waveforms in a digital synthesis system must be examined: continuous real-time calculation of waveform samples or lookup from a Table that has been calculated once and then written to disk.
 
-\begin{thebibliography}{99}
+\begin{thebibliography}{9}
 
 \bibitem{bsynth}
 
@@ -461,5 +576,7 @@ New York,
 1998.
 
 \end{thebibliography}
+
+\listoffigures
 
 \end{document}
