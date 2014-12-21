@@ -1,0 +1,1 @@
+sample = table[integral] + ((table[integral + 1] - table[integral]) * fractional)
