@@ -24,7 +24,11 @@
 
 \usepackage{multicol}
 
+\usepackage{multirow}
+
 \usepackage{floatrow}
+
+\usepackage{array}
 
 \setlength{\headheight}{15pt}
 
@@ -113,7 +117,7 @@ Our everyday experience of sound is an entirely analog one. When a physical     
 
 \pagebreak
 
-While continuous signals and the idea of an infinite, uncountable set of values are easy to model in mathematics and physics --- the analog world, computers --- in the digital world --- effectively have no means by which to represent something that is infinite, since computer memory is a finite resource. Therefore, signals in the digital domain are discrete, meaning they are composed of periodic \emph{samples}. A sample is a discrete recording of a continuous signal's amplitude, taken in a constant time interval \citebs{16}. The process by which a continuous signal is converted to a discrete signal is called \emph{quantization}, \emph{digitization} or simply \emph{analog-to-digital-conversion} \citedsp{35-36} \citebs{16}. The reverse process of converting discrete samples to a continuous signal is called \emph{digital-to-analog-conversion} \citebs{17}. Figure \ref{fig:disc} shows the discrete representation of a sine wave, the same signal that was previously shown as a continuous signal in Figure \ref{fig:cont}.
+\noindent While continuous signals and the idea of an infinite, uncountable set of values are easy to model in mathematics and physics --- the analog world, computers --- in the digital world --- effectively have no means by which to represent something that is infinite, since computer memory is a finite resource. Therefore, signals in the digital domain are discrete, meaning they are composed of periodic \emph{samples}. A sample is a discrete recording of a continuous signal's amplitude, taken in a constant time interval \citebs{16}. The process by which a continuous signal is converted to a discrete signal is called \emph{quantization}, \emph{digitization} or simply \emph{analog-to-digital-conversion} \citedsp{35-36} \citebs{16}. Quantization essentially converts an analog function of amplitude to a digital function of location in computer memory over time (Burk, Polansky, Repetto, Roberts and Rockmore, 2011, Section 2.1). The reverse process of converting discrete samples to a continuous signal is called \emph{digital-to-analog-conversion} \citebs{17}. Figure \ref{fig:disc} shows the discrete representation of a sine wave, the same signal that was previously shown as a continuous signal in Figure \ref{fig:cont}.
 
 \begin{figure}[h!]
 
@@ -514,7 +518,7 @@ The process of generating triangle waves additively differs from previous wavefo
 
 \end{figure}
 
-\subsection{Special Waveforms}
+\subsection{Smooth Waveforms}
 
 One noticeable problem with square, sawtooth and ramp waves is that they have very sharp transitions at certain points in their waveforms, such as the square wave at the midpoint, $\frac{T}{2}$, where the amplitude jumps from its maximum to its minimum. While these transitions and jumps in amplitude contribute to the characteristic sound of these waves when used for music, they can pose a problem when they are used for modulation, as sharp transitions in amplitude translate to clicking sounds acoustically. One possible solution to reduce the impact of such transitions would be to overlay an audio envelope directly on the waveform, to bend or smooth the amplitude at the transition points. However, a more effective and direct solution would be to mathematically calculate a waveform that is already smoothed out at these critical points. The following two paragraphs propose a set of empirically determined functions to calculate "smooth" square and sawtooth waves.
 
@@ -588,10 +592,87 @@ For sawtooth waves, the only critical area of transition is the point at which o
   \label{eq:ssawC}
 \end{equation}
 
+\subsubsection{Smooth Ramp Waves}
+
+Smooth ramp waves are created identically to smooth sawtooth waves, except that the sign of all piecewise functions as well as as their offsets change, as shown by Equations \ref{eq:srampA} to \ref{eq:srampC} as well as Figure \ref{fig:sramp}.
+
+\begin{equation}
+  a(t) =
+  \begin{cases}
+    \frac{2t}{0.9T} - 1 = \frac{-20t}{9T} + 1,& \text{if } 0 \leq t < \frac{9T}{10}
+  \end{cases}
+  \label{eq:srampA}
+\end{equation}
+
+\begin{equation}
+  b(t) =
+  \begin{cases}
+    -400(t-0.9)^2 + 1,& \text{if } \frac{9T}{10} \leq t < \frac{95T}{100}
+  \end{cases}
+  \label{eq:srampB}
+\end{equation}
+
+\begin{equation}
+  c(t) =
+  \begin{cases}
+    400(t-1)^2 - 1,& \text{if } \frac{95T}{100} \leq t < T
+  \end{cases}
+  \label{eq:srampC}
+\end{equation}
+
 \begin{figure}
-  \includegraphics[scale=0.5]{img/ssaw}
-  \caption{One period of a smooth sawtooth function as a sum of three piecewise functions.}
-  \label{fig:ssaw}
+
+  \TopFloatBoxes
+
+  \begin{floatrow}
+
+    \ffigbox{\caption{A smooth sawtooth wave.} \label{fig:ssaw}}{ \includegraphics[scale=0.5]{img/ssaw}}
+
+    \ffigbox{\caption{A smooth ramp wave.} \label{fig:sramp}}{ \includegraphics[scale=0.5]{img/sramp}}
+
+  \end{floatrow}
+
+\end{figure}
+
+%\pagebreak
+
+\subsection{Sine Waves with Different Bit Widths}
+
+The bit width of a waveform determines its resolution, i.e. the number of numerical values the amplitude of a signal can take. Common values for the resolution of a waveform are 64 bits, as provided by the C++ double-precision floating-point data type \texttt{double}, or 16 bits, as used by the Waveform Audio File Format (WAVE). Reducing the bit width of a waveform can give the impression of an "old-school" sound, as older synthesis systems from the 20th century were often limited to low bit-widths due to their less advanced hardware, compared to contemporary hardware configurations. Consequently, some digital synthesizers, such as Ableton's Operator, additionally provide waveforms with other bit widths such as 4 or 8 bits. Table \ref{tb:bitw} shows bit width values alongside the number of possibilities a sample can take when the given bit width is used. Note that in general, $n$ bits yield $2^n$ possible values. Figures \ref{fig:sine3} and \ref{fig:sine4} show sine waves with a bit width of 3 and 4 bits, respectively.
+
+\begin{table}[th!]
+
+  \centering
+
+  \begin{tabular}[]{| l | l |}
+    \hline
+    Bit width & Possibilities\\\hline
+    2 & 4\\
+    3 & 8\\
+    4 & 16\\
+    8 & 256\\
+    16 & 65536\\
+    32 & 4294967296\\
+    64 & 18446744073709551616\\
+    \hline
+  \end{tabular}
+
+  \caption{Bit widths alongside the number of possible values a sample can take when the given bit width is used.}
+
+  \label{tb:bitw}
+
+\end{table}
+
+\begin{figure}[th!]
+  \includegraphics[scale=0.5]{img/sine3}
+  \caption{A 3-bit sine wave.}
+  \label{fig:sine3}
+\end{figure}
+
+\begin{figure}[th!]
+  \includegraphics[scale=0.5]{img/sine4}
+  \caption{A 4-bit sine wave.}
+  \label{fig:sine4}
 \end{figure}
 
 \pagebreak
@@ -619,7 +700,7 @@ Examining Figure \ref{fig:gibbsb}, which displays an additively synthesized squa
 
 \pagebreak
 
-\section{Real-Time Calculation versus Wavetable Lookup}
+\section{Wavetables}
 
 Following the discussion of the creation of complex waveform, the two options for playing back waveforms in a digital synthesis system must be examined: continuous real-time calculation of waveform samples or lookup from a table that has been calculated once and then written to disk --- a so-called Wavetable. To keep matters short, the second method was found to be computationally more efficient and thus the better choice, as memory is a more easily expended resource than computational speed.
 
@@ -655,7 +736,7 @@ For almost all configurations of frequencies, table lengths and sample rates, th
 
 \subsection{Table Length}
 
-The length of the Wavetable must be chosen carefully to be both memory efficient and at the same time provide a decently accurate waveform resolution. An equation to calculate the size of a single wavetable in Kilobytes is given by Equation \ref{eq:tablesize}, where L is the table length and $N$ the number of bytes provided by the precision of the data type used for samples, e.g. 8 bytes for the double precision floating point data type \texttt{double}.
+The length of the Wavetable must be chosen carefully to be both memory efficient and at the same time provide a decently accurate waveform resolution. An equation to calculate the size of a single wavetable in Kilobytes is given by Equation \ref{eq:tablesize}, where L is the table length and $N$ the number of bytes provided by the resolution of the data type used for samples, e.g. 8 bytes for the double-precision floating-point data type \texttt{double}.
 
 \begin{equation}
   Size = \frac{L \times N}{1024}
@@ -670,7 +751,7 @@ The length of the Wavetable must be chosen carefully to be both memory efficient
   \label{fig:jari}
 \end{figure}
 
-\noindent Considering both pieces of advice as well as the fact that my computer, a 2.5 GHz Intel Core i5, 13-inch, Mid-2012 MacBook Pro, has an L2-Cache size of 256 KB, it was decided that a Wavetable size of 4096, which translates to 32 KB of memory, would be suitable.\\
+\noindent Considering both pieces of advice, it was decided that a Wavetable size of 4096 ($2^12$), which translates to 32 KB of memory, would be suitable.\\
 
 \noindent One important fact to mention, also discussed by Jari Kleimola as seen in Figure \ref{fig:jari}, is that because the interpolation algorithm from Table \ref{code:interp} must have access to the sample value at index $i+1$, $i$ being the current index, an additional sample must be appended to the Wavetable to avoid a \texttt{BAD\_ACCESS} error. This added sample usually has the same value as the first sample in the table to avoid a discontinuity. Therefore, the period of the waveform actually only fills 4095 of the 4096 indices of the Wavetable, as the 4096th sample is equal to the first.
 
@@ -688,6 +769,108 @@ For maximum efficiency, the Wavetables are not created at program startup but re
   \includegraphics[scale=0.7]{img/wtfile}
   \caption{The first few bytes of a Wavetable file.}
   \label{fig:wtfile}
+\end{figure}
+
+\section{Noise}
+
+A noisy signal is a signal in which some or all samples take on random values. Generally, noise is considered as something to avoid, as it may lead to unwanted distortion of a signal. Nevertheless, noise can be used as an interesting effect when creating music. Its uses include, for example, the modeling of the sound of wind or the crashing of water waves against the shore of a beach. Some people enjoy the change in texture noise induces in a sound, others find noise relaxing and even listen to it while studying. \citebs{76} Unlike all audio signals\footnotemark{} presented so far, noise cannot\footnotemark{} be stored in a Wavetable, as it must be random throughout its duration and not repeat periodically for a proper sensation of truly \emph{random} noise.
+
+\footnotetext{The term "waveform" would be incorrect here, as noise is not periodic and thus cannot really be seen as a waveform.}
+
+\footnotetext{Noise could theoretically be stored in a Wavetable, of course. However, even a very large Wavetable destroys the randomness property to some extent and would thus invalidate the idea behind noise being truly random.}
+
+\subsection{Colors of Noise}
+
+The \emph{color} of a noise signal describes, acoustically speaking, the \emph{texture} or \emph{timbre} \footnotemark{} of the sound produced, as well as, scientifically speaking, the spectral power density and frequency content of the signal. The following paragraphs will examine and explain the creation of various noise colors, namely white, pink, red, violet and blue noise.
+
+\footnotetext{Timbre is a rather vague term used by musicians and audio engineers to describe the properties, such as pitch, tone and intensity, of an audio signal's sound that distinguish it from other sounds. The \emph{Oxford Dictionary of English} defines timbre as "the character or quality of a musical sound or voice as distinct from its pitch and intensity".}
+
+\subsubsection{White Noise}
+
+White noise is a random signal in its purest and most un-filtered form. In such a signal, all possible frequencies are found with a uniform probability distribution, meaning they are distributed at equal intensity throughout the signal. The association of noise with colors actually stems from the connection between white noise and white light, which is said to be composed of almost all color components at an approximately equal distribution. Figure \ref{fig:wnoise} shows a typical white noise signal in the time domain, Figure \ref{fig:wnoisez} gives a close-up view of Figure \ref{fig:wnoise}, Figure \ref{fig:wnoisef} displays the frequency spectrum of a white noise signal and Table \ref{code:wnoise} shows the implementation of a simple C++ class to produce white noise.
+
+\begin{figure}[h!]
+  \sidecap{A typical white noise signal.}{fig:wnoise}
+  {\includegraphics[scale=0.62]{img/wnoise}}
+\end{figure}
+
+\begin{figure}[h!]
+  \sidecap{A close-up view of Figure \ref{fig:wnoise}. This Figure shows nicely how individual sample values are completely random and independent from each other. }{fig:wnoisez}
+  {\includegraphics[scale=0.5]{img/wnoisez}}
+\end{figure}
+
+\begin{figure}[h!]
+  \includegraphics[scale=0.6]{img/wnoisef}
+  \caption{The signal from Figures \ref{fig:wnoise} and \ref{fig:wnoisez} in the frequency domain. This frequency spectrum analysis proves the fact that white noise has a "flat" frequency spectrum, meaning that all frequencies are  distributed uniformly and at (approximately) equal intensity. }
+  \label{fig:wnoisef}
+\end{figure}
+
+\begin{table}
+  \code{code/wnoise.cpp}
+  \caption{A simple C++ class to produce white noise. \texttt{rgen\_} is a random number generator following the Mersenne-Twister algorithm, to retrieve uniformly distributed values from the \texttt{dist\_} distribution in the range of -1 to 1. \texttt{tick()} returns a random white noise sample. }
+  \label{code:wnoise}
+\end{table}
+
+\subsubsection{Pink Noise}
+
+Pink noise, sometimes referred to as $\frac{1}{f}$ noise, is white noise filtered with a 3dB/octave low-pass filter. In contrast to white noise, which has equal energy \emph{per frequency component}, pink noise has equal energy \emph{per octave}. This is a significant difference as humans hear on the basis of octaves (logarithmically), and not completely linearly, meaning that for the human ear the difference between 400 and 800 Hertz (one octave) sounds the same as the octave jump between 6 KHz and 11 Khz, even though the absolute difference between thoes two ranges is 4.6 Khz! To address this phenomenon, pink noise has more energy in the lower, narrower octave ranges and less energy in the wider, higher octave ranges. Therefore, the few high intensity values in the low frequency bands add up to equal the sum of lower intensity values in the wider, higher frequency octave bands. Figure \ref{fig:pnoisef} displays the frequency spectrum of pink noise. In the time domain, pink noise looks more or less like white noise, as can be seen in Figure \ref{fig:pnoiset}.
+
+\begin{figure}[t!]
+  \includegraphics[scale=0.6]{img/pnoisef}
+  \caption{The frequency spectrum of pink noise. Note that the filter with which white noise was transformed into pink noise, discussed in a later chapter, is not perfect, resulting in the increase in frequency intensity towards the end of the spectrum. Ideally, the intensity should decrease linearly.}
+  \label{fig:pnoisef}
+\end{figure}
+
+\begin{figure}[t!]
+  \includegraphics[scale=0.7]{img/pnoiset}
+  \caption{Pink noise in the time domain.}
+  \label{fig:pnoiset}
+\end{figure}
+
+\subsubsection{Red Noise}
+
+Red Noise has an energy decrease of 6dB/Octave. Another method of generating red noise besides filtering white noise appropriately is integrating a white noise signal, as shown in Equation \ref{eq:rnoise}. Red noise is also called "Brown" or "Brownian" noise. This name is not given for its visual equivalent, but rather for it's resemblance to a signal produced by Brownian motion or "Random Walk", "the erratic random movement of microscopic particles in a fluid, as a result of continuous bombardment from molecules of the surrounding medium." (Oxford Dictionary of English, 2003). Figure \ref{fig:rnoisef} shows a red noise signal in the frequency domain and Figure \ref{fig:rnoiset} in the time domain.
+
+\begin{equation}
+  N_{red}(t) = \int_{0}^{t} N_{white}(t)dt
+  \label{eq:rnoise}
+\end{equation}
+
+\begin{figure}[t!]
+  \includegraphics[scale=0.6]{img/rnoisef}
+  \caption{Red noise in the frequency domain.}
+  \label{fig:rnoisef}
+\end{figure}
+
+\begin{figure}[t!]
+  \includegraphics[scale=0.7]{img/rnoiset}
+  \caption{Red noise in the time domain.}
+  \label{fig:rnoiset}
+\end{figure}
+
+\subsubsection{Blue Noise}
+
+Wherease pink and red noise show a decrease in intensity per frequency component, blue noise exhibits an \textbf{increase} in intensity by 3dB/Octave, making it sound like a high-pitched version of white noise. Blue noise can be created by making the filter used for pink noise a high-pass filter instead of a low-pass one, meaning that higher frequencies are filtered less than lower ones. Figure \ref{fig:bnoisef} shows a frequency spectrum of the blue noise created for the purpose of this thesis. The reader may question as to why the spectrum shown looks nothing like what was just described as the ideal spectrum of blue noise. As matter of fact, it was discovered that a frequency spectrum of this kind, combined with a decreased gain of -3dB, produces the same sound as an ideal blue noise signal. In the time domain, blue noise looks similar to the white noise depicted in Figure \ref{fig:wnoise}.
+
+\begin{figure}[hb!]
+  \includegraphics[scale=0.6]{img/bnoisef}
+  \caption{Blue noise in the frequency domain.}
+  \label{fig:bnoisef}
+\end{figure}
+
+\subsubsection{Violet Noise}
+
+What blue noise is to pink noise, violet noise is to red noise. Violet noise increases by 6dB per octave and can also be created by differentiating a white noise signal, just as red noise is the result of integrating white noise. Acoustically, violet noise sounds like a very high-pitched "hissing" sound. Equation \ref{eq:vnoise} shows how violet noise can be produced as a derivative of white noise and Figure \ref{fig:vnoisef} shows the frequency response of a violet noise signal.
+
+\begin{equation}
+  N_{violet} = \frac{dN_{white}(t)}{dt}
+  \label{eq:vnoise}
+\end{equation}
+
+\begin{figure}
+  \includegraphics[scale=0.6]{img/vnoisef}
+  \caption{The frequency spectrum of a white noise signal.}
+  \label{fig:vnoisef}
 \end{figure}
 
 \begin{thebibliography}{9}
@@ -717,6 +900,30 @@ San Diego, California,
 2nd Edition,
 
 1999.
+
+\bibitem{oxdic}
+
+Ed: Catherine Soanes and Angus Stevenson
+
+\emph{Oxford Dictionary of English}
+
+Oxford University Press,
+
+Oxford,
+
+2003.
+
+\bibitem{musco}
+
+Phil Burk, Larry Polansky, Douglas Repetto, Mary Roberts and Dan Rockmore
+
+\emph{Music and Computers: A Historical and Theoretical Appraoch}.
+
+2011
+
+\url{http://music.columbia.edu/cmc/MusicAndComputers/}
+
+Accessed: 22 December 2014.
 
 \bibitem{sosfm}
 
