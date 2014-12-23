@@ -858,6 +858,8 @@ Wherease pink and red noise show a decrease in intensity per frequency component
   \label{fig:bnoisef}
 \end{figure}
 
+\pagebreak
+
 \subsubsection{Violet Noise}
 
 What blue noise is to pink noise, violet noise is to red noise. Violet noise increases by 6dB per octave and can also be created by differentiating a white noise signal, just as red noise is the result of integrating white noise. Acoustically, violet noise sounds like a very high-pitched "hissing" sound. Equation \ref{eq:vnoise} shows how violet noise can be produced as a derivative of white noise and Figure \ref{fig:vnoisef} shows the frequency response of a violet noise signal.
@@ -871,6 +873,40 @@ What blue noise is to pink noise, violet noise is to red noise. Violet noise inc
   \includegraphics[scale=0.6]{img/vnoisef}
   \caption{The frequency spectrum of a white noise signal.}
   \label{fig:vnoisef}
+\end{figure}
+
+\chapter{Modulating Sound}
+
+One of the most interesting aspects of any synthesizer, digital as well as analog, is its capability to modify or \emph{modulate} sound in a variety of ways. To modulate a sound means to change its amplitude, pitch, timbre, or any other property of a signal to produce an, often entirely, new sound. This chapter will examine and explain two of the most popular means of modulation in a digital synthesis system, Envelopes and Low Frequency Oscillators (LFOs).
+
+\section{Envelopes}
+
+When a pianist hits a key on his piano, the amplitude of the sound produced increases from zero, no sound, to some maximum amplitude which depends on a multitude of factors such as how hard the musician pressed the key, what material the piano string is made of, the influence of air friction and so on. After reaching the maximum loudness, the amplitude decreases until the piano string stops oscillating, resulting in renewed silence. To model such an evolution of amplitude over time, digital musicians use a modulation technique commonly referred to as an "Envelope".
+
+\subsection{Envelope segments}
+
+The following sections outline the creation of and terminology used for single segments of an envelope.
+
+\subsection{ADSR}
+
+A common concept associated with Envelopes is "ADSR", which stands for "Attack, Decay, Sustain, Release". These four terms name the four possible states an Envelope segment can take on. An Attack segment is any segment where the initial amplitude, at the start of a segment, is less than the final amplitude, at the end of the segment --- the amplitude increases. Conversely, a Decay segment signifies a decrease in amplitude from a higher to a lower value. When the loudness of a signal stays constant for the full duration of an interval, this interval is termed a "Sustain" segment. While the three segment types just mentioned all describe the modulation of a signal's loudness when the key of a piano or synthesizer is still being pressed, the last segment type, a "Release" segment, refers to the change in loudness once the key is \emph{released}. Figure \ref{fig:adsr} depicts an abstract representation of a typical ADSR envelope. Figure \ref{fig:envb} shows a 440 Hz sine wave before the application of an ADSR envelope and Figure \ref{fig:enva} displays the same signal after an ADSR envelope has been applied to it.
+
+\begin{figure}[p!]
+  \includegraphics[scale=0.8]{img/adsr}
+  \caption{An Envelope with an Attack, a Decay, a Sustain and finally a Release segment. Source: \protect\url{http://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/ADSR_parameter.svg/500px-ADSR_parameter.svg.png}}
+  \label{fig:adsr}
+\end{figure}
+
+\begin{figure}[p!]
+  \includegraphics[scale=0.8]{img/envb}
+  \caption{A 440 Hz sine wave.}
+  \label{fig:envb}
+\end{figure}
+
+\begin{figure}[p!]
+  \includegraphics[scale=0.8]{img/enva}
+  \caption{The same signal from Figure \ref{fig:envb} with an ADSR Envelope overlayed on it.}
+  \label{fig:enva}
 \end{figure}
 
 \begin{thebibliography}{9}
