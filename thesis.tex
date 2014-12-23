@@ -72,7 +72,7 @@ morecomment=[l][\color{red}]{\#}
 
 % Macro for source code inclusion. Moves to main
 % directory then takes the further path as argument
-\newcommand{\code}[2][1]{\lstinputlisting[firstnumber=#1]{#2}}
+\newcommand{\code}[2][1]{\lstinputlisting[firstnumber=#1]{code/#2}}
 
 \newcommand{\citebs}[1]{(Mitchell, 2008, p. #1)}
 
@@ -272,7 +272,7 @@ Ideally, a square wave is equal to its maximum amplitude for exactly one half of
 \end{multicols}
 
 \begin{table}
-  \sidecap{C++ code to generate and return one period of a square wave, where \texttt{period} is the period duration in samples. Note that this function increments in sample time, measured in seconds, rather than actual samples. This prevents a one-sample quantization error at the mid-point, since time can always be halved whereas a sample is a fixed entity and cannot be broken down any further.}{code:dsquare}{\code{code/dsquare.cpp}}
+  \sidecap{C++ code to generate and return one period of a square wave, where \texttt{period} is the period duration in samples. Note that this function increments in sample time, measured in seconds, rather than actual samples. This prevents a one-sample quantization error at the mid-point, since time can always be halved whereas a sample is a fixed entity and cannot be broken down any further.}{code:dsquare}{\code{dsquare.cpp}}
 \end{table}
 
 \subsubsection{Sawtooth Waves}
@@ -300,7 +300,7 @@ An ideal sawtooth wave descends from its maximum amplitude to its minimum amplit
 \end{multicols}
 
 \begin{table}
-  \sidecap{C++ code to generate one period of a sawtooth wave function, where \texttt{period} is the period duration in samples.}{code:dsaw}{\code{code/dsaw.cpp}}
+  \sidecap{C++ code to generate one period of a sawtooth wave function, where \texttt{period} is the period duration in samples.}{code:dsaw}{\code{dsaw.cpp}}
 \end{table}
 
 \subsubsection{Ramp Waves}
@@ -328,7 +328,7 @@ A ramp wave is, quite simply, an inverted sawtooth wave. It ascends from its min
 \end{multicols}
 
 \begin{table}
-  \sidecap{C++ ramp wave generator. This code differs from the program shown in Table \ref{code:dsaw} solely in the amplitude offset (-1 instead of 1) and the increment, which is now positive. }{code:dramp}{\code{code/dramp.cpp}}
+  \sidecap{C++ ramp wave generator. This code differs from the program shown in Table \ref{code:dsaw} solely in the amplitude offset (-1 instead of 1) and the increment, which is now positive. }{code:dramp}{\code{dramp.cpp}}
 \end{table}
 
 \pagebreak
@@ -378,7 +378,7 @@ A triangle wave can be seen as a combination of a ramp wave and a sawtooth wave,
 \end{multicols}
 
 \begin{table}
-  \sidecap{C++ program to compute one period of a triangle wave.}{code:dtri}{\code{code/dtri.cpp}}
+  \sidecap{C++ program to compute one period of a triangle wave.}{code:dtri}{\code{dtri.cpp}}
 \end{table}
 
 \subsection{Additive Synthesis}
@@ -398,7 +398,7 @@ The second method of generating complex waveforms, additive synthesis, produces 
 \end{figure}
 
 \begin{table}
-  \sidecap{C++ code to represent a single partial in a Fourier Series.}{code:partial} {\code{code/partial.cpp}}
+  \sidecap{C++ code to represent a single partial in a Fourier Series.}{code:partial} {\code{partial.cpp}}
 \end{table}
 
 \noindent The following paragraphs will examine how the four waveforms presented in Section 2.2.1, the square, the sawtooth, the ramp and the triangle wave, can be synthesized additively.
@@ -420,7 +420,7 @@ When speaking of additive synthesis, a square wave is the result of summing all 
 
     \ffigbox{\caption{Square waves with 2, 4, 8, 16,\\ 32 and 64 partials.} \label{fig:square}}{ \includegraphics[scale=0.12]{img/square}}
 
-    \ttabbox{\caption{C++ code for a square wave with 64 partials.} \label{code:asquare}}{\code{code/asquare.cpp}}
+    \ttabbox{\caption{C++ code for a square wave with 64 partials.} \label{code:asquare}}{\code{asquare.cpp}}
 
   \end{floatrow}
 
@@ -445,7 +445,7 @@ A sawtooth wave is slightly simpler to create through additive synthesis, as it 
 
     \ffigbox{\caption{Sawtooth waves with 2, 4, 8,\\ 16, 32 and 64 partials.} \label{fig:saw}}{ \includegraphics[scale=0.12]{img/saw}}
 
-    \ttabbox{\caption{C++ code for a sawtooth wave with 64 partials.} \label{code:asaw}}{\code{code/asaw.cpp}}
+    \ttabbox{\caption{C++ code for a sawtooth wave with 64 partials.} \label{code:asaw}}{\code{asaw.cpp}}
 
   \end{floatrow}
 
@@ -470,7 +470,7 @@ Ramp waves are essentially the inverse of sawtooth waves. Therefore, we can simp
 
     \ffigbox{\caption{Ramp waves with 2, 4, 8, 16,\\ 32 and 64 partials.} \label{fig:ramp}}{ \includegraphics[scale=0.12]{img/ramp}}
 
-    \ttabbox{\caption{C++ code for a ramp wave with 64 partials.} \label{code:aramp}}{\code{code/aramp.cpp}}
+    \ttabbox{\caption{C++ code for a ramp wave with 64 partials.} \label{code:aramp}}{\code{aramp.cpp}}
 
   \end{floatrow}
 
@@ -500,7 +500,7 @@ The process of generating triangle waves additively differs from previous wavefo
 
     \killfloatstyle
 
-    \ttabbox{\code{code/atri.cpp}}{\caption{C++ code for a triangle wave\\ with 64 partials.} \label{code:atri}}
+    \ttabbox{\code{atri.cpp}}{\caption{C++ code for a triangle wave\\ with 64 partials.} \label{code:atri}}
 
   \end{floatrow}
 
@@ -711,13 +711,13 @@ A Wavetable is a table (practically speaking an array) in which one stores pre-c
 For almost all configurations of frequencies, table lengths and sample rates, the table index $i$ produced by Equation \ref{eq:otherincr} will not be an integer. Since using a floating point number as an index for an array is a syntactically illegal operation in C++, there are two options. The first is to truncate or round the table index to an integer, thus "introducing a quantization error into the signal [...]". This is obviously a suboptimal solution which would result in a change of phase and consequently distortion. \citebs{84} The second option, interpolation, tries to approximate the true value from the sample at the current index and at the subsequent one. Interpolation is achieved by summation of the sample value at the floored, integral part of the table index, $\left \lfloor{i}\right \rfloor$, with the difference between this sample and the sample value at the next table index, $\left \lfloor {i}\right \rfloor + i$, multiplied by the fractional part of the table index, $i - \left \lfloor {i}\right \rfloor$. Table \ref{code:pseudointerp} displays the calculation of a sample by means of interpolation in pseudo-code and Table \ref{code:interp} in C++. (based on pseudo-code, Mitchell, 2008, p. 85)
 
 \begin{table}
-  \code{code/interpolation.pseudo}
+  \code{interpolation.pseudo}
   \caption{An interplation algorithm in pseudo-code.}
   \label{code:pseudointerp}
 \end{table}
 
 \begin{table}
-  \code{code/interpolation.cpp}
+  \code{interpolation.cpp}
   \caption{Full C++ template function to interpolate a value from a table, given a fractional index. }
   \label{code:interp}
 \end{table}
@@ -748,7 +748,7 @@ The length of the Wavetable must be chosen carefully to be both memory efficient
 For maximum efficiency, the Wavetables are not created at program startup but read from a binary file. To prevent the synthesizer program from accidentally reading faulty files, some simple identification string must be added to the file. Therefore, Wavetable files contain a 6-char ID string with the name of the synthesizer, Anthem, after which the 32 KB of Wavetable data follow. Additionally, Wavetable files end with a \texttt{.wavetable} file extension. Table \ref{code:wtfile} displays a function to read such a Wavetable file and Figure \ref{fig:wtfile} shows the first few bytes of a Wavetable file when opened as plain-text. The total size of a Wavetable file is exactly 32774 bytes, 32768 bytes (32KB) of Wavetable data and 6 bytes for the ID string.
 
 \begin{table}[t!]
-  \code{code/file.cpp}
+  \code{file.cpp}
   \caption{C++ code to read a Wavetable file. }
   \label{code:wtfile}
 \end{table}
@@ -794,7 +794,7 @@ White noise is a random signal in its purest and most un-filtered form. In such 
 \end{figure}
 
 \begin{table}
-  \code{code/wnoise.cpp}
+  \code{wnoise.cpp}
   \caption{A simple C++ class to produce white noise. \texttt{rgen\_} is a random number generator following the Mersenne-Twister algorithm, to retrieve uniformly distributed values from the \texttt{dist\_} distribution in the range of -1 to 1. \texttt{tick()} returns a random white noise sample. }
   \label{code:wnoise}
 \end{table}
@@ -917,7 +917,7 @@ Mathematically, an Envelope segment can be modeled using a simple power function
 Creating full Envelopes with a variable number of segments requires little more work than implementing a state-machine, which checks whether the current sample count is greater than the length of the Envelope segment currently active. If the sample count is still less than the length of the segment, one retrieves Envelope values from the current segment, else the Envelope progresses to the next segment. Additionally, it should be possible for the user to loop between segments of an Envelope a variable number of times before moving on to the release segment. Table \ref{code:envsegseq} displays two member functions of an Envelope class created for this thesis, which return an Envelope value from the current Envelope segment and allow for the update of the sample count.\\
 
 \begin{table}
-  \code{code/envsegseq.cpp}
+  \code{envsegseq.cpp}
   \caption{Two member functions of the EnvSegSeq class (Envelope Segment Sequence).}
   \label{code:envsegseq}
 \end{table}
@@ -931,6 +931,90 @@ Creating full Envelopes with a variable number of segments requires little more 
 \end{figure}
 
 \section{Low Frequency Oscillators}
+
+A Low Frequency Oscillator, abbreviated "LFO", is an oscillator operating at very low frequencies, typically in the range below human hearing (0-20 Hz), used solely for the purposes of modulating other signals. The most common parameter to be modulated by an LFO in a synthesizer is the amplitude of another oscillator, to produce effects such as the well known "vibrato" effect. In this case, were the frequency of the LFO to be in the audible range, one would use the term Amplitude Modulation (AM), which is also a method for synthesizing sound. Moreover, Amplitude Modulation is one of the two main techniques for transmitting information over electro-magentic waves, alongside Frequency Modulation (FM), but that is a different subject, entirely. Equation \ref{eq:lfoam} shows how an LFO can be used to change the amplitude of another oscillator\footnote{This is the same equation as for AM.}. Figure \ref{fig:lfo1} shows a 440 Hz sine wave, Figure \ref{fig:lfo2} displays the same sine wave now modulated by a 2 Hz LFO and in Figure \ref{fig:lfo3} the frequency of the LFO has been increased to 20 Hz to produce a vibrato effect. It should be noted that an LFO can also modulate any other parameter, such as the rate of an Envelope segment.
+
+\begin{equation}
+  O(t) = (A_{osc} + (A_{lfo} \times sin(\omega_{lfo}t + \phi_{lfo}))) \times sin(\omega_{osc}t + \phi_{osc})
+  \label{eq:lfoam}
+\end{equation}
+
+\begin{figure}[h!]
+  \includegraphics[scale=0.5]{img/lfo1}
+  \caption{A 440 Hz sine wave.}
+  \label{fig:lfo1}
+\end{figure}
+
+\begin{figure}[h!]
+  \includegraphics[scale=0.5]{img/lfo2}
+  \caption{The sine wave from Figure \ref{fig:lfo1} modulated by an LFO with a frequency of 2 Hertz. Note how the maximum amplitude of the underlying signal now follows the waveform of a sine wave. Because the LFO's amplitude is the same as that of the oscillator (the "carrier" wave), the loudness is twice as high at its maximum, and zero at its minimum.}
+  \label{fig:lfo2}
+\end{figure}
+
+\begin{figure}[h!]
+  \includegraphics[scale=0.5]{img/lfo3}
+  \caption{The sine wave from Figure \ref{fig:lfo1} modulated by an LFO with a frequency of 20 Hertz. This signal is said to have a "vibrato" sound to it.}
+  \label{fig:lfo3}
+\end{figure}
+
+\pagebreak
+
+\noindent Concerning the implementation of an LFO in a computer program, the process could be as simple as re-naming a class used for an oscillator:
+
+\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+  typedef OscillatorClass LFOClass.
+\end{lstlisting}
+
+\noindent In the synthesizer created for this thesis, called \emph{Anthem}, the distinction between an LFO and an oscillator is the possibility to modulate an LFO's parameters, for example using an Envelope or another LFO, whereas the \texttt{Oscillator} class is an abstract base class whose sole purpose is to be an interface to a Wavetable. This property of the \texttt{Oscillator} class is used by both the \texttt{LFO} and the \texttt{Operator} class, who both inherit from the \texttt{Oscillator} class. The \texttt{Operator} class is the sound generation unit the user actually interfaces with from the Graphical User Interface (GUI) of Anthem. It is derived from the \texttt{Oscillator} class because it ultimately needs to generate sound samples, but it is its own class because it has various other features used for sound synthesis. These features are discussed in a later chapter. The relationships just described lead to the inheritance diagram shown in Figure \ref{fig:osc-derived}.
+
+\begin{figure}[h!]
+  \includegraphics[scale=0.9]{img/osc-derived}
+  \caption{Inheritance diagram showing the relationship between an \texttt{LFO}, an \texttt{Operator} and their base class, the \texttt{Oscillator} class.}
+  \label{fig:osc-derived}
+\end{figure}
+
+\subsection{LFO Sequences}
+
+A common sight in many modern digital synthesizers, such as Native Instruments' "Massive" synthesizer, is a form of step-sequencer for Low Frequency Oscillators. This modulation unit is essentially a synthesis between the concept of an Envelope and that of an LFO. It has a variable number of segments of fixed length, each with their own LFO to change the waveform of the segment. Figure \ref{fig:lfoseq} displays what Native Instruments calls a "Stepper".\\
+
+\begin{figure}
+  \includegraphics[scale=0.6]{img/lfoseq}
+  \caption{An LFO sequence, here named a "Stepper". Source: \protect\url{http://www.askaudiomag.com/articles/massives-performer-and-stepper-lfos}}
+  \label{fig:lfoseq}
+\end{figure}
+
+\noindent For the purpose of this thesis, such an LFO sequence was created. Regarding the implementation in C++, there is little difference between an LFO Sequence and an Envelope Segment Sequence, except for the fact that now each individual segment has an LFO that can be accessed through the interface of the class to change the parameters or the waveform of each LFO. One of the two parameters that deserves to be discussed, however, is the frequency or "rate" of such an LFO sequence. Just like the frequency of an oscillator describes the number of cycles its waveform completes every second, the rate of an LFO Sequence determines how often the entire sequence is traversed in one second. Practically speaking, this involves adjusting the length of individual segments in such a way that the combined length equals the wanted duration. To give an example: if the user wishes to change the rate of an LFO Sequence with 10 segments to 1 Hz, each individual segment must have a duration of 0.1 seconds (100 milliseconds), so that at the end of the sequence, exactly $10 \text{ segments} \times 0.1 \text{ seconds} = 1 \text{ second}$ will have passed. The length of a single segment can be derived from Equation \ref{eq:lfoseq1}, where $r$ is the rate of the LFO Sequence and $N$ the number of segments in the sequence.
+
+\begin{equation}
+  l_{seg} = \frac{1}{r \times N}
+  \label{eq:lfoseq1}
+\end{equation}
+
+\noindent The second parameter worthy of mentioning is the frequency of individual segments' modulation LFOs. As mentioned, the frequency of an oscillator or of an LFO sets the cycles per second of their waveform. However, when the length of a single segment in an LFO sequence is only very small, e.g. 100 milliseconds, having an LFO modulate the segment at a common frequency of, say, 1 Hz, would mean that only one tenth of the LFO's period is completed. To have the LFO complete a full cycle, the user would have to adjust the frequency of the LFO in such a way that it can complete one period within the duration of the segment (in this case, 10 Hz). This may still seem like a manageable task for the user. However, once parameter values become a little more complicated, giving birth to cases where the user has to figure out that to have 5 cycles in a segment with a duration of 0.4 seconds, the frequency needs to be exactly 12.5 Hz, the objective reader must admit that this is not intuitive behaviour. Therefore, it was decided that for modulation LFOs in LFO sequences, the rate should not be defined as cycles per second, but as cycles per \emph{segment}. This means that setting the rate of a segment's LFO to 5 Hertz results in 5 cycles per second \emph{regardless} of the segment's duration. Naturally, the task of calculating the correct frequency for the LFO still has to be performed by the computer program. The \emph{real} frequency can be calculated using Equation \ref{eq:lfoseq2} when the duration $d$ is in seconds and Equation \ref{eq:lfoseq3} when the duration is in samples, as is the case for a digital synthesizer. In both Equations $f_{displayed}$ stands for the frequency the user specifies, the cycles per segment, and $f_{real}$ for the actual frequency in cycles per second. Furthermore, in Equation \ref{eq:lfoseq3}, $f_{s}$ denotes the sample rate.
+
+\begin{equation}
+  f_{real} = \frac{f_{displayed}}{d}
+  \label{eq:lfoseq2}
+\end{equation}
+
+\begin{equation}
+  f_{real} = \frac{f_{s}}{d} \times f_{displayed}
+  \label{eq:lfoseq3}
+\end{equation}
+
+\begin{table}[t!]
+  \code{lfoseq.cpp}
+  \caption{Relevant member functions from the \texttt{LFOSeq} class for calculating the correct rate for individual segments as well as for the entire sequence.}
+  \label{code:lfoseq}
+\end{table}
+
+\pagebreak
+
+\subsection{LFO Units}
+
+To provide an intuitive interface for the users of the synthesizer created for the purpose of this thesis, LFOs and LFO Sequences are packed into an "LFO Unit". Such an LFO Unit comprises two LFOs and two LFO Sequences, as well as a cross-fader. There is an LFO mode and an LFO Sequence mode between which the user can switch to display either the two LFOs or the two LFO Sequences. The cross-fader is used to mix between the signals of the two objects currently in display. For example, the LFO Unit can be configured to produce samples that are from an LFO with a sine wave and from another LFO with a sawtooth wave, each making up 50\% of the final signal.
+
+\section{The ModDock system}
 
 \begin{appendices}
 
