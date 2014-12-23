@@ -899,7 +899,7 @@ A common concept associated with Envelopes is "ADSR", which stands for "Attack, 
 
 \subsubsection{Mathematical Definition and Rate Types}
 
-Mathematically, an Envelope segment can be modeled using a simple power function of the general form presented in Equation \ref{eq:power}, where $a_{final}$ is the final amplitude at the end of the segment, $a_{start}$ the initial amplitude at the beginning of the segment and $r$ the parameter responsible for the shape or "rate" of the segment. When $r$, which must kept between $0$ and $\infty$ (practically speaking some value around $10$), is equal to $1$, the segment has a linear rate and is thus a straight line connecting the initial amplitude with the final loudness. If $r$ is greater than 1, the function becomes a power function and consequently exhibits a non-linear increase or decrease in amplitude. Lastly, if $r$ is less than 1 but greater than 0, the function is termed a "radical function", since any term of the form $x^\frac{a}{b}$ can be re-written to the form $\sqrt[b]{x^a}$, where the numerator $a$ becomes the power of the variable and the denominator $b$ the radicand. Therefore, $t^{0.5}$ produces a square root function $\sqrt{t}$. Figure \ref{fig:rates} displays an envelope whose first segment has $r = 2$, a quadratic increase, after which the sound decays linearly, before increasing again, this time $r$ being equal to $\frac{1}{2}$ --- a square root function. A C++ class for single Envelope segments is shown in Listing \ref{code:envseg}.
+Mathematically, an Envelope segment can be modeled using a simple power function of the general form presented in Equation \ref{eq:power}, where $a_{final}$ is the final amplitude at the end of the segment, $a_{start}$ the initial amplitude at the beginning of the segment and $r$ the parameter responsible for the shape or "rate" of the segment. When $r$, which must kept between $0$ and $\infty$ (practically speaking some value around $10$), is equal to $1$, the segment has a linear rate and is thus a straight line connecting the initial amplitude with the final loudness. If $r$ is greater than 1, the function becomes a power function and consequently exhibits a non-linear increase or decrease in amplitude. Lastly, if $r$ is less than 1 but greater than 0, the function is termed a "radical function", since any term of the form $x^\frac{a}{b}$ can be re-written to the form $\sqrt[b]{x^a}$, where the numerator $a$ becomes the power of the variable and the denominator $b$ the radicand. Figure \ref{fig:rates} displays an envelope whose first segment has $r = 2$, a quadratic increase, after which the sound decays linearly, before increasing again, this time $r$ being equal to $\frac{1}{2}$ (a square root function). A C++ class for single Envelope segments is shown in Listing \ref{code:envseg}.
 
 \begin{equation}
   a(t) = (a_{final} - a_{start}) \times t^r + a_{start}
@@ -911,6 +911,26 @@ Mathematically, an Envelope segment can be modeled using a simple power function
   \caption{An envelope where $r$ is equal to 2, then to 1, then to 0.5.}
   \label{fig:rates}
 \end{figure}
+
+\subsection{Full Envelopes}
+
+Creating full Envelopes with a variable number of segments requires little more work than implementing a state-machine, which checks whether the current sample count is greater than the length of the Envelope segment currently active. If the sample count is still less than the length of the segment, one retrieves Envelope values from the current segment, else the Envelope progresses to the next segment. Additionally, it should be possible for the user to loop between segments of an Envelope a variable number of times before moving on to the release segment. Table \ref{code:envsegseq} displays two member functions of an Envelope class created for this thesis, which return an Envelope value from the current Envelope segment and allow for the update of the sample count.\\
+
+\begin{table}
+  \code{code/envsegseq.cpp}
+  \caption{Two member functions of the EnvSegSeq class (Envelope Segment Sequence).}
+  \label{code:envsegseq}
+\end{table}
+
+\noindent Envelopes have many uses. Some require flexible segments which allow for the adjusting of individual segments' lengths, others need all segments to have a constant length. Some give the user the possibility to modulate individual segments by making them behave like a sine function, others do not. Fortunately, C++'s inheritance features make it very easy and efficient to construct such a variety of different classes that may or may not share relevant features. The inheritance diagram for the final \texttt{Envelope} class created for the purpose of this thesis reflects how all of these individual class can play together to yield the wanted features for a class. This inheritance diagram is displayed in Figure \ref{fig:envelope-inherit}.
+
+\begin{figure}
+  \includegraphics[scale=0.7]{img/envelope-inherit}
+  \caption{The inheritance diagram for the \texttt{Envelope} class. The \texttt{Unit} and \texttt{ModUnit} classes are two abstract classes that will be explained in later parts of this thesis.}
+  \label{fig:envelope-inherit}
+\end{figure}
+
+\section{Low Frequency Oscillators}
 
 \begin{appendices}
 
