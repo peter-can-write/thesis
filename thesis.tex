@@ -30,6 +30,8 @@
 
 \usepackage{array}
 
+\usepackage[toc,page]{appendix}
+
 \setlength{\headheight}{15pt}
 
 \begin{document}
@@ -218,12 +220,12 @@ The simplest possible waveform is the sine wave. As a function of time, it can b
   \label{eq:sine}
 \end{equation}
 
-A computer program to compute the values of a sine wave with a variable duration, implemented in C++, is shown in Table \ref{code:sine}. Another waveform similar to the sine wave is the cosine wave, which differs only in a phase offset of 90\degree or $\frac{\pi}{2}$ radians:\\
+A computer program to compute the values of a sine wave with a variable duration, implemented in C++, is shown in Listing \ref{code:sine}. Another waveform similar to the sine wave is the cosine wave, which differs only in a phase offset of 90\degree or $\frac{\pi}{2}$ radians:\\
 \begin{equation}
   f_{c}(t) = A \cos(2 \pi  f t + \phi) = A \sin(2 \pi f t + \phi + 90)
   \label{eq:cosine}
 \end{equation}\\
-Therefore, the program from Table \ref{code:sine} could be modified to compute a cosine wave by changing line 22 from:\\
+Therefore, the program from Listing \ref{code:sine} could be modified to compute a cosine wave by changing line 22 from:\\
 
 \begin{lstlisting}[firstnumber=22]
   double phase = 0;
@@ -232,12 +234,6 @@ to
 \begin{lstlisting}[firstnumber=22]
   double phase = pi/2.0;
 \end{lstlisting}
-
-\begin{table}[p!]
-  \code{code/sine.cpp}
-  \caption{C++ implementation of a complete sine wave generator.}
-  \label{code:sine}
-\end{table}
 
 \section{Complex Waveforms}
 
@@ -387,7 +383,7 @@ A triangle wave can be seen as a combination of a ramp wave and a sawtooth wave,
 
 \subsection{Additive Synthesis}
 
-The second method of generating complex waveforms, additive synthesis, produces waveforms that, despite not being mathematically perfect, are closer to the waveforms found naturally. This method involves the summation of a theoretically infinite, practically finite set of sine and/or cosine waves with varying parameters and is often called Fourier Synthesis, after the 18th century French scientist, Joseph Fourier, who first described the process and associated phenomena of summing sine and cosine waves to produce complex waveforms. This calculation of a complex, periodic waveform from a sum of sine and cosine functions is also called a Fourier Transform or a Fourier Series, both part of the Fourier Theorem. In a Fourier Series, a single sine/cosine component is either called a harmonic, an overtone or a partial. All three name the same idea of a waveform with a frequency that is an \emph{integer multiple} of some fundamental pitch or frequency. \citebs{64} Throughout this thesis the term \emph{partial} will be preferred. \\\\Equation 2.13 gives the general definition of a discrete Fourier Transform. Equation 2.14 shows a simplified version of Equation 2.13. Table \ref{code:partial} presents a C++ struct to represent a single partial and Tables \ref{code:add1} and \ref{code:add2} a piece of C++ code to compute one period of any Fourier Series.
+The second method of generating complex waveforms, additive synthesis, produces waveforms that, despite not being mathematically perfect, are closer to the waveforms found naturally. This method involves the summation of a theoretically infinite, practically finite set of sine and/or cosine waves with varying parameters and is often called Fourier Synthesis, after the 18th century French scientist, Joseph Fourier, who first described the process and associated phenomena of summing sine and cosine waves to produce complex waveforms. This calculation of a complex, periodic waveform from a sum of sine and cosine functions is also called a Fourier Transform or a Fourier Series, both part of the Fourier Theorem. In a Fourier Series, a single sine/cosine component is either called a harmonic, an overtone or a partial. All three name the same idea of a waveform with a frequency that is an \emph{integer multiple} of some fundamental pitch or frequency. \citebs{64} Throughout this thesis the term \emph{partial} will be preferred. \\\\Equation 2.13 gives the general definition of a discrete Fourier Transform. Equation 2.14 shows a simplified version of Equation 2.13. Table \ref{code:partial} presents a C++ struct to represent a single partial and Listing \ref{code:add} a piece of C++ code to compute one period of any Fourier Series.
 
 \begin{figure}[h!]
   $f(t) = \frac{a_{0}}{2} + \sum\limits_{n=1}^\infty (a_{n} \cos(\omega n t) = b_{n} \sin(\omega n t))$
@@ -403,14 +399,6 @@ The second method of generating complex waveforms, additive synthesis, produces 
 
 \begin{table}
   \sidecap{C++ code to represent a single partial in a Fourier Series.}{code:partial} {\code{code/partial.cpp}}
-\end{table}
-
-\begin{table}
-  \sidecap{}{code:add1}{\code{code/add1.cpp}}
-\end{table}
-
-\begin{table}
-  \sidecap{\emph{Continuation of Table \ref{code:add1}}. C++ program to produce one period of an additively synthesized complex waveform, given a start and end iterator to a container of partials, a buffer length, a maximum, "master", amplitude, a boolean whether or not to apply sigma approximation and lastly a maximum bit width parameter.}{code:add2}{\code[56]{code/add2.cpp}}
 \end{table}
 
 \noindent The following paragraphs will examine how the four waveforms presented in Section 2.2.1, the square, the sawtooth, the ramp and the triangle wave, can be synthesized additively.
@@ -871,7 +859,7 @@ What blue noise is to pink noise, violet noise is to red noise. Violet noise inc
 
 \begin{figure}
   \includegraphics[scale=0.6]{img/vnoisef}
-  \caption{The frequency spectrum of a white noise signal.}
+  \caption{The frequency spectrum of a violet noise signal.}
   \label{fig:vnoisef}
 \end{figure}
 
@@ -887,7 +875,7 @@ When a pianist hits a key on his piano, the amplitude of the sound produced incr
 
 The following sections outline the creation of and terminology used for single segments of an envelope.
 
-\subsection{ADSR}
+\subsubsection{ADSR}
 
 A common concept associated with Envelopes is "ADSR", which stands for "Attack, Decay, Sustain, Release". These four terms name the four possible states an Envelope segment can take on. An Attack segment is any segment where the initial amplitude, at the start of a segment, is less than the final amplitude, at the end of the segment --- the amplitude increases. Conversely, a Decay segment signifies a decrease in amplitude from a higher to a lower value. When the loudness of a signal stays constant for the full duration of an interval, this interval is termed a "Sustain" segment. While the three segment types just mentioned all describe the modulation of a signal's loudness when the key of a piano or synthesizer is still being pressed, the last segment type, a "Release" segment, refers to the change in loudness once the key is \emph{released}. Figure \ref{fig:adsr} depicts an abstract representation of a typical ADSR envelope. Figure \ref{fig:envb} shows a 440 Hz sine wave before the application of an ADSR envelope and Figure \ref{fig:enva} displays the same signal after an ADSR envelope has been applied to it.
 
@@ -908,6 +896,39 @@ A common concept associated with Envelopes is "ADSR", which stands for "Attack, 
   \caption{The same signal from Figure \ref{fig:envb} with an ADSR Envelope overlayed on it.}
   \label{fig:enva}
 \end{figure}
+
+\subsubsection{Mathematical Definition and Rate Types}
+
+Mathematically, an Envelope segment can be modeled using a simple power function of the general form presented in Equation \ref{eq:power}, where $a_{final}$ is the final amplitude at the end of the segment, $a_{start}$ the initial amplitude at the beginning of the segment and $r$ the parameter responsible for the shape or "rate" of the segment. When $r$, which must kept between $0$ and $\infty$ (practically speaking some value around $10$), is equal to $1$, the segment has a linear rate and is thus a straight line connecting the initial amplitude with the final loudness. If $r$ is greater than 1, the function becomes a power function and consequently exhibits a non-linear increase or decrease in amplitude. Lastly, if $r$ is less than 1 but greater than 0, the function is termed a "radical function", since any term of the form $x^\frac{a}{b}$ can be re-written to the form $\sqrt[b]{x^a}$, where the numerator $a$ becomes the power of the variable and the denominator $b$ the radicand. Therefore, $t^{0.5}$ produces a square root function $\sqrt{t}$. Figure \ref{fig:rates} displays an envelope whose first segment has $r = 2$, a quadratic increase, after which the sound decays linearly, before increasing again, this time $r$ being equal to $\frac{1}{2}$ --- a square root function. A C++ class for single Envelope segments is shown in Listing \ref{code:envseg}.
+
+\begin{equation}
+  a(t) = (a_{final} - a_{start}) \times t^r + a_{start}
+  \label{eq:power}
+\end{equation}
+
+\begin{figure}
+  \includegraphics[scale=0.7]{img/rates}
+  \caption{An envelope where $r$ is equal to 2, then to 1, then to 0.5.}
+  \label{fig:rates}
+\end{figure}
+
+\begin{appendices}
+
+  \chapter{Code Listings}
+
+  \pagebreak
+
+  \lstinputlisting[frame=single,caption={C++ implementation of a complete sine wave generator.},label={code:sine}]{code/sine.cpp}
+
+  \pagebreak
+
+  \lstinputlisting[frame=single,caption={C++ program to produce one period of an additively synthesized complex waveform, given a start and end iterator to a container of partials, a buffer length, a maximum, "master", amplitude, a boolean whether or not to apply sigma approximation and lastly a maximum bit width parameter.},label={code:add}]{code/add.cpp}
+
+  \pagebreak
+
+  \lstinputlisting[frame=single,caption={C++ implementation of single Envelope segments.},label={code:envseg}]{code/envseg.cpp}
+
+\end{appendices}
 
 \begin{thebibliography}{9}
 
