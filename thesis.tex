@@ -141,7 +141,7 @@ The sample rate (often referred to as sampling rate or sampling frequency), comm
 
 The sample rate determines the range of frequencies that can be represented by a digital sound system, as only frequencies that are less than or equal to one half of the sampling rate, where it is possible to take at least one sample above the equilibrium and at least one sample below the equilibrium for every cycle \citebs{18}, can be "properly sampled". To sample a signal "properly" means to be able to "reconstruct" a continuous signal, given a set of discrete samples, "exactly", i.e. without any \emph{quantization errors}. The value of one half of the sample rate is called the \emph{Nyquist frequency} or \emph{Nyquist limit}, named after Harry Nyquist, who first described the Nyquist limit and associated phenomena together with Claude Shannon in the 1940s, stating that "a continuous signal can be properly sampled, only if it does not contain frequency components above one half the sampling rate" \citedsp{40}. Any frequencies above the Nyquist limit lead to \emph{aliasing}, which is discussed in the next section.\\
 
-Given the definition of the Nyquist limit and considering the fact that the limit of human hearing is approximately 20 kHz (Cutnell \& Johnson, 1998, p. 466), the reason for which the two most common audio sample rates are 40 kHz and above is clear: they were chosen to allow the "proper" representation of the entire audio frequency range, since a sample rate of 40 kHz meets the Nyquist requirement of a sample rate at least twice the maximum frequency component of the signal to be sampled (the Nyquist limit), in this case ca. 20 Khz.
+\noindent Given the definition of the Nyquist limit and considering the fact that the limit of human hearing is approximately 20 kHz (Cutnell \& Johnson, 1998, p. 466), the reason for which the two most common audio sample rates are 40 kHz and above is clear: they were chosen to allow the "proper" representation of the entire audio frequency range, since a sample rate of 40 kHz meets the Nyquist requirement of a sample rate at least twice the maximum frequency component of the signal to be sampled (the Nyquist limit), in this case ca. 20 Khz.
 
 \section{Aliasing}
 
@@ -961,7 +961,7 @@ A Low Frequency Oscillator, abbreviated "LFO", is an oscillator operating at ver
 
 \noindent Concerning the implementation of an LFO in a computer program, the process could be as simple as re-naming a class used for an oscillator:
 
-\begin{lstlisting}[basicstyle=\ttfamily\footnotesize]
+\begin{lstlisting}
   typedef OscillatorClass LFOClass.
 \end{lstlisting}
 
@@ -975,7 +975,9 @@ A Low Frequency Oscillator, abbreviated "LFO", is an oscillator operating at ver
 
 \subsection{LFO Sequences}
 
-A common sight in many modern digital synthesizers, such as Native Instruments' "Massive" synthesizer, is a form of step-sequencer for Low Frequency Oscillators. This modulation unit is essentially a synthesis between the concept of an Envelope and that of an LFO. It has a variable number of segments of fixed length, each with their own LFO to change the waveform of the segment. Figure \ref{fig:lfoseq} displays what Native Instruments calls a "Stepper".\\
+A common sight in many modern digital synthesizers, such as Native Instruments'\footnotemark{} "Massive" synthesizer, is a form of step-sequencer for Low Frequency Oscillators. This modulation unit is essentially a synthesis between the concept of an Envelope and that of an LFO. It has a variable number of segments of fixed length, each with their own LFO to change the waveform of the segment. Figure \ref{fig:lfoseq} displays what Native Instruments calls a "Stepper".\\
+
+\footnotetext{"Native Instruments is a technology company that develops software and hardware for music production and DJ-ing", based out of Berlin, Germany. Source: \emph{Wikpedia:} \url{http://en.wikipedia.org/wiki/Native_Instruments}. Homepage: \url{http://www.native-instruments.com/en/}}
 
 \begin{figure}
   \includegraphics[scale=0.6]{img/lfoseq}
@@ -1016,6 +1018,92 @@ To provide an intuitive interface for the users of the synthesizer created for t
 
 \section{The ModDock system}
 
+The majority of digital synthesizers, such as Propellerhead's\footnotemark{} \emph{Thor} or Native Instruments'\footnotemark[2] \emph{FM8} synthesizer, implement modulation in a static way. Instead of making it possible to use an LFO or an Envelope to modulate any parameter in a synthesis system, units, e.g. an oscillator, have dedicated LFOs and Envelopes, which modulate only one parameter --- mostly amplitude --- and only for this unit. On the other hand, some synthesizers like \emph{Massive}, also created by Native Instruments, implement a system where LFOs and Envelopes can be used by a variable number of units, for a variable number of parameters. For this thesis and the synthesizer created for it, such a system, here called the "ModDock" system, was emulated \footnotemark. The following sections will outline the process of defining and implementing the ModDock system.
+
+\footnotetext{"Propellerhead Software is a music software company, based in Stockholm, Sweden, and founded in 1994." Source: \emph{Wikipedia} \url{http://en.wikipedia.org/wiki/Propellerhead_Software}. Homepage: \url{https://www.propellerheads.se}}
+
+\footnotetext{I, Peter Goldsborough, want to explicitly state that I did not invent the idea of, what \emph{I} call, the "ModDock" system. Full credit goes to the software engineers behind and anybody involved in the creation of Native Instruments \emph{Massive}. I merely implemented it and modified it slightly.}
+
+\subsection{Problem statement}
+
+In short, the ModDock system should make it possible to modulate a variable number of parameters of a variable number of units of the synthesizer, with any of a fixed number of LFOs, Envelopes or similar \emph{Modulation Units}. Consequently, each unit in the synthesis system should have what will be known as a "ModDock", a set of "docks", the number of which depends on the number of parameters the unit makes it possible to modulate, where the user may insert a Modulation Unit. Due to the fact that many units may be modulated by one Modulation Unit, the Modulation Unit must not update its value until all units have been modulated by it. For example, the sample count of an Envelope must stay the same until all dependent units have retrieved the current Envelope value from it. Moreover, a unit should be able to adjust the depth of modulation by a Modulation Unit, i.e. it should be possible to have only 50\% of an LFO's signal affect the parameter it is modulating. Finally, there should be a way of \emph{side-chaining} Modulation Units so that one Modulation Unit in a dock modulates the depth of another Modulation Unit in that same dock, the signal of which may again side-chain the depth of another Modulation Unit in that ModDock. The final modulation of a parameter will be the average of all modulation values of a ModDock affecting that parameter.
+
+\subsection{Implementation}
+
+The following paragraphs will outline the process of implementing such a ModDock system.
+
+\subsubsection{Units and ModUnits}
+
+In order to let units of the synthesizer created for this thesis share certain behaviour and member functions, as well as to distinguish between the traits and tasks certain units have that others do not, it was necessary to develop an inheritance structure that would satisfy these requirements. In \emph{Anthem}, a \emph{Unit} is defined as any object with modulateable parameters. Units have necessary member variables and functions to permit that Unit's parameters to be modulated by other \emph{Modulation Units}. A Modulation Unit, short \emph{ModUnit}, shall be defined as any Unit that can modulate a parameter of a Unit. The ModUnit class includes the \emph{pure virtual}\footnotemark{} \texttt{modulate} method, which takes a sample and returns a modulated version of that sample. The form of modulation depends entirely on the implementation of the \texttt{modulate} method by the class that inherits from the ModUnit class, as the ModUnit class itself does not implement any standard way of modulating a sample. Figure \ref{fig:unit-inherit} displays the inheritance diagram for the Unit class.
+
+\begin{figure}
+  \includegraphics[scale=0.5]{img/unit-inherit}
+  \caption{The inheritance diagram of the Unit class. GenUnits are Units that generate samples. EffectUnits apply some effect to a sample, e.g. a sample delay.}
+  \label{fig:unit-inherit}
+\end{figure}
+
+\footnotetext{In C++, a pure virtual function is a function that does not have any standard implementation and thus requires the derived classes of the class that declares the pure virtual function to implement that function on their own. A class that declares a pure virtual method is termed an \emph{abstract} class and may not be instantiated.}
+
+\subsubsection{The \texttt{modulate} method}
+
+All classes derived from the ModUnit class must implement the \texttt{modulate} method, which takes the sample to modulate, a depth value between 0 (no modulation) and 1 (full modulation) as well as a maximum boundary as its arguments. In the case of LFOs, the maximum boundary parameter determines the value that is added to the sample. For example, when the amplitude of a unit is modulated, the maximum boundary is 1, meaning that the value added to the sample is in the range of $[-A_{LFO} \times 1; A_{LFO} \times 1]$, whereas for the rate parameter of Envelope segments, where the maximum boundary is 10, the range is $[-A_{LFO} \times 10; A_{LFO} \times 10]$. The declaration of the \texttt{modulate} method in the ModUnit class is given below.
+
+\begin{lstlisting}
+  virtual double modulate(double sample, double depth, double maximum) = 0;
+\end{lstlisting}
+
+\noindent This method was the main motivation behind the creation of the ModUnit class and is especially important for ModDocks, as it makes it possible to polymorphically access the \texttt{modulate} method of any ModUnit through a pointer-to-ModUnit (\texttt{ModUnit*}). This means that each ModUnit can have its own definition of what it means to modulate a sample. Table \ref{code:modlfo} shows the definition of the \texttt{modulate} method in the LFO and Table \ref{code:modenv} in the Envelope class.
+
+\begin{table}[ht!]
+  \code{modlfo.cpp}
+  \caption{The implementation of the \texttt{modulate} method for LFOs.}
+  \label{code:modlfo}
+\end{table}
+
+\begin{table}
+  \code{modenv.cpp}
+  \caption{The implementation of the \texttt{modulate} method for Envelopes. Note that for the Envelope class, the paramter \texttt{maximum} is not relevant, which is why it is never used. This shows that all that matters is that the method returns a modulated sample --- what "modulate" means is up to the class that implements it.}
+  \label{code:modenv}
+\end{table}
+
+\subsubsection{ModDocks}
+
+A ModDock is simply a collection of ModUnits. The ModDock collects all the modulated samples of individual ModUnits in the dock and returns an average over all samples. For example, if one LFO adds a value of $0.3$ to the amplitude parameter of a Unit with a current amplitude of $0.5$ and another subtracts a value of $0.1$, the final amplitude of that Unit will be $0.6$, as $\frac{(0.5 + 0.3) + (0.5 - 0.1)}{2} = 0.6$. Moreover, this means that if the two LFOs were to add/subtract the same absolute value but with a different sign, for example $-0.4$ and $0.4$, the net difference would be $0$ and the amplitude would remain $0.5$. Something else the ModDock takes care of is boundary checking and value adjustment. This means that, continuing the example given above, were an LFO to add a value of $±1$ to the base amplitude of $0.5$, the amplitude would not oscillate in the range $[-1.5;1.5]$. Rather, the ModDock ensures that the value trespasses neither the maximum boundary nor the minimum boundary, which is another parameter supplied to the ModDock. Therefore, the amplitude value would remain in the optimal range of $[-1;1]$. Alongside the maximum and the minimum boundary, the Unit who owns the ModDock can pass the current base value of the parameter to be modulated to the ModDock. In the aforementioned example, the base value would be $0.5$. Also, the ModDock can store the depth of modulation of individual ModUnits. Because both the \texttt{depth} and the \texttt{maximum} parameter of the \texttt{modulate} method for ModUnits are now stored in an instance of the \texttt{ModDock} class, the \texttt{modulate} method has a much simpler declaration in the \texttt{ModDock} class:
+
+\begin{lstlisting}
+  double modulate(double sample);
+\end{lstlisting}
+
+\noindent What this simplification of the \texttt{modulate} method requires, however, is that the maximum and minimum boundary as well as an initial base value are passed to the relevant ModDock in the construction of the Unit that owns it. Additionally, the ModDock must be notified whenever the base value changes. Table \ref{code:moddockconst} shows how these parameters may be passed to a ModDock and updated when necessary.
+
+\begin{table}[ht!]
+  \code{moddockconst.cpp}
+  \caption{}
+  \label{code:moddockconst}
+\end{table}
+
+\subsubsection{Sidechaining}
+
+One of the most interesting and equally complicated tasks encountered when creating the ModDock system was the implementation of side-chaining. Side-chaining makes it possible to have one ModUnit in a ModDock modulate the depth parameter of another ModUnit in that same ModDock. Borrowing from the terminology of digital communication, a ModUnit that side-chains another ModUnit is termed a "Master" and the ModUnit being side-chained is called a "Slave". Moreover, it was decided that any ModUnit that is not a Master shall be called a non-Master. A non-Master is any ModUnit that is either a Slave or not involved in any side-chaining relationship at all --- a normal ModUnit. It should be noted that the signal of a Master does not affect the final modulation value of a ModDock directly, i.e. the modulation value of a Master is not taken into consideration during the averaging process described above, but only indirectly, by modulating the depth of a Slave. Therefore, a ModUnit can be either a Master and contribute to the final modulation directly or be a non-Master and contribute to the final value directly. It should be noted that it is entirely possible to have one Master modulate multiple Slaves and for one Slave to have multiple Masters. Figure \ref{fig:flowsc} depicts these relationships in a flow-chart. Figure \ref{fig:scsketch} shows a scan of early sketches created while implementing side-chaining.\\
+
+\noindent What Figure \ref{fig:scsketch} also displays is that there are two possible ways to implement side-chaining. The first method, which was ultimately not chosen, is to have each ModUnit in the ModDock have its own ModDock where Masters could be inserted. The second method involves internally linking Masters and Slaves within the ModDock. This second implementation was finally decided to be the better one as it does not require the instantiation of a full new ModDock for each ModUnit while providing the same functionality. Listing \ref{code:moditem} shows all private members of the \texttt{ModDock} class. Special attention should be payed to the \texttt{ModItem} struct, which is essential to the implementation of side-chaining and is very similar to the concept of a Linked-List. Each \texttt{ModItem} stores the aforementioned pointer-to-ModUnit to access the \texttt{modulate} method of the ModUnit. Moreover, there is one vector of indices for all Masters of that particular ModItem and one vector of indices for all of its Slaves. These indices refer to the positions of Masters/Slaves in the vector where all ModItems are stored, the \texttt{modItems\_} vector. When the user sets up a side-chain relationship between two ModItems of a ModDock, the index of the Slave is added to the Slave vector of the Master and the index of the Master is inserted into the Master vector of the Slave. Should the user wish to "un-side-chain" two ModItems, their indices are removed from the each other's appropriate vector.\\
+
+\noindent Moreover, the \texttt{ModItem} struct holds a baseDepth variable. This variable is similar to the baseValue of the ModDock, in the sense that is the ModItem's original depth which serves as the base value for modulation by other ModItems. The modulation of a Slave by its Masters is implemented in the exact same way that a parameter of a Unit is modulated by a ModDock's ModUnits. Modulated Slave samples are summed and averaged over their number. Listing \ref{code:moddockmodulate} gives the full definition of the \texttt{modulate} method of the ModDock class. In lines 9 to 35, Slaves are modulated by their Masters. Subsequently, in lines 39 to 62, the sample passed to the function from the Unit who owns the ModDock is modulated by all non-Masters and finally returned.
+
+\begin{figure}[p!]
+  \includegraphics[scale=0.7]{img/flowsc}
+  \caption{}
+  \label{fig:flowsc}
+\end{figure}
+
+\begin{figure}[p!]
+  \includegraphics[scale=0.8]{img/scsketch}
+  \caption{}
+  \label{fig:scsketch}
+\end{figure}
+
+\section{Crossfaders}
+
 \begin{appendices}
 
   \chapter{Code Listings}
@@ -1031,6 +1119,14 @@ To provide an intuitive interface for the users of the synthesizer created for t
   \pagebreak
 
   \lstinputlisting[frame=single,caption={C++ implementation of single Envelope segments.},label={code:envseg}]{code/envseg.cpp}
+
+  \pagebreak
+
+  \lstinputlisting[frame=single,caption={Private members of the \texttt{ModDock} class.},label={code:moditem}]{code/moditem.cpp}
+
+  \pagebreak
+
+  \lstinputlisting[frame=single,caption={Definition of the \texttt{modulate} method in the \texttt{ModDock} class.},label={code:moddockmodulate}]{code/moddockmodulate.cpp}
 
 \end{appendices}
 
