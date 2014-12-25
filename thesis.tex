@@ -32,6 +32,8 @@
 
 \usepackage[toc,page]{appendix}
 
+\usepackage{colortbl}
+
 \setlength{\headheight}{15pt}
 
 \begin{document}
@@ -634,13 +636,14 @@ The bit width of a waveform determines its resolution, i.e. the number of numeri
 
   \begin{tabular}[]{| l | l |}
     \hline
+    \rowcolor[gray]{0.8}
     Bit width & Possibilities\\\hline
-    2 & 4\\
-    3 & 8\\
-    4 & 16\\
-    8 & 256\\
-    16 & 65536\\
-    32 & 4294967296\\
+    2 & 4\\\hline
+    3 & 8\\\hline
+    4 & 16\\\hline
+    8 & 256\\\hline
+    16 & 65536\\\hline
+    32 & 4294967296\\\hline
     64 & 18446744073709551616\\
     \hline
   \end{tabular}
@@ -1102,7 +1105,112 @@ One of the most interesting and equally complicated tasks encountered when creat
   \label{fig:scsketch}
 \end{figure}
 
-\section{Crossfaders}
+\pagebreak
+
+\section{Crossfading}
+
+In digital music, it is often useful to crossfade or "mix" between two signals\footnotemark{}. When two signals $A$ and $B$ are used to produce a new signal $C$, crossfading means to control the amount by which signal $C$ is composed of signal $B$ in dependence of the amount by which it is composed of signal $A$. This is especially interesting when the two signals stem from ModUnits, making it possible to mix between their modulation signals. This idea lead to the creation of the \texttt{Crossfader} class, which is itself a ModUnit and will be described in this section. Equation \ref{eq:lcrossfade1} defines the concept of crossfading, in its most basic form, mathematically.
+
+\begin{equation}
+  C(t) = (A(t) \times x) + (B(t) \times (1 - x)), \text{where } x \in [0;1]
+  \label{eq:lcrossfade1}
+\end{equation}
+
+\footnotetext{Crossfading is most commonly known as the technique a DJ may use to mix between two pieces of music during his/her performance.}
+
+The following sections will examine three techniques of crossfading as described by Daniel R. Mitchell in his book \emph{BasicSynth: Creating a Music Synthesizer in Software}, pages 96 to 99. Additionally, their implementation in C++ will be outlined.
+
+\subsection{Linear Crossfading}
+
+Linear crossfading is the simplest form of crossfading. Its mathematical definition was already given in Equation \ref{eq:lcrossfade1}, showing that the crossfade value for the "right" signal, $B$, is indirectly proportional to the value for the "left" signal, $A$. This means that when the left value increases, the right value decreases and vice-versa. It should be noted that it is common to provide a range of $[-1;1]$ or $[-100;100]$ (preferred) instead of the mathematically easier range of $[0;1]$, simply to make the interaction more intuitive to the user. Therefore, Equation \ref{eq:lcrossfade1} must be re-formed to Equation \ref{eq:lcrossfade2}. Table \ref{tb:lcrossfade} shows crossfade values alongside the resulting multipliers for signals $A$ and $B$.
+
+\begin{equation}
+  C(t) = (A(t) \times \frac{100 - x}{200}) + (B(t) \times \frac{100 + x}{200}), \text{where } x \in [-100;100]
+  \label{eq:lcrossfade2}
+\end{equation}
+
+\begin{table}[h!]
+
+  \centering
+
+  \begin{tabular}[]{| l | l | l |}
+    \hline
+    \rowcolor[gray]{0.8}
+    Value & Multiplier $A$ & Multiplier $B$ \\\hline
+    -100 & 1 & 0\\\hline
+    -75 & 0.875 & 0.125\\\hline
+    -50 & 0.75 & 0.25\\\hline
+    -25 & 0.625 & 0.375\\\hline
+    0 & 0.5 & 0.5\\\hline
+    25 & 0.375 & 0.625\\\hline
+    50 & 0.25 & 0.75\\\hline
+    75 & 0.125 & 0.875\\\hline
+    100 & 0 & 1\\
+    \hline
+  \end{tabular}
+
+  \caption{Crossfade values alongside the resulting multipliers for signals $A$ and $B$.}
+
+  \label{tb:lcrossfade}
+
+\end{table}
+
+\subsection{Crossfading with the $\sin$ function}
+
+Another technique of crossfading involves the use of the $\sin$ function to compute the multipliers for signals $A$ and $B$. This is said to improve the "smoothness" of the mix \citebs{98}. Because the $\sin$ function operates with radians, the crossfade values from Equation \ref{eq:lcrossfade2} must be multiplied with $\frac{\pi}{2}$, leading to Equation \ref{eq:scrossfade} for cross-fading with the $\sin$ function. It should be noted that the center value for this technique is not $0.5$, but $\frac{\sqrt{2}}{2}$ or $\sin(\frac{\pi}{4})$. Table \ref{tb:scrossfade} gives cross-fade values using the $\sin$ function and the multipliers that result from them. Figure \ref{fig:lscrossfade} shows how this method of crossfading compares to linear crossfading in a coordinate system.
+
+\begin{equation}
+  C(t) = (A(t) \times \sin(\frac{100 - x}{200} \times \frac{\pi}{2})) + (B(t) \times \sin(\frac{100 + x}{200} \times \frac{\pi}{2})), \text{where } x \in [-100;100]
+  \label{eq:scrossfade}
+\end{equation}
+
+\begin{table}[h!]
+
+  \centering
+
+  \begin{tabular}[]{| l | l | l |}
+    \hline
+    \rowcolor[gray]{0.8}
+    Value & Multiplier $A$ & Multiplier $B$ \\\hline
+    -100 & 1 & 0\\\hline
+    -75 & 0.980 & 0.195\\\hline
+    -50 & 0.924 & 0.383\\\hline
+    -25 & 0.831 & 0.556\\\hline
+    0 & 0.707 & 0.707\\\hline
+    25 & 0.556 & 0.831\\\hline
+    50 & 0.383 & 0.924\\\hline
+    75 & 0.195 & 0.980\\\hline
+    100 & 0 & 1\\
+    \hline
+  \end{tabular}
+
+  \caption{Crossfade values when using the $\sin$ function, alongside the resulting multipliers for signals $A$ and $B$.}
+
+  \label{tb:scrossfade}
+
+\end{table}
+
+\begin{figure}[ht!]
+
+  \includegraphics[scale=0.7]{img/lscrossfade}
+
+  \caption{The top graph depicts linear crossfading and the bottom graph crossfading with the $\sin$ function. The red line is the multiplier for signal $A$ and the blue line is the multiplier for signal $B$.}
+
+  \label{fig:lscrossfade}
+
+\end{figure}
+
+\subsection{Radical Crossfading}
+
+\subsection{Scaling Crossfade values}
+
+\subsection{Implementation}
+
+\subsubsection{Pantables}
+
+\subsubsection{The \texttt{CrossfadeUnit} class}
+
+\subsubsection{The \texttt{Crossfader} class}
 
 \begin{appendices}
 
