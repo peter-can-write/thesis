@@ -1015,10 +1015,6 @@ A common sight in many modern digital synthesizers, such as Native Instruments'\
 
 \pagebreak
 
-\subsection{LFO Units}
-
-To provide an intuitive interface for the users of the synthesizer created for the purpose of this thesis, LFOs and LFO Sequences are packed into an "LFO Unit". Such an LFO Unit comprises two LFOs and two LFO Sequences, as well as a cross-fader. There is an LFO mode and an LFO Sequence mode between which the user can switch to display either the two LFOs or the two LFO Sequences. The cross-fader is used to mix between the signals of the two objects currently in display. For example, the LFO Unit can be configured to produce samples that are from an LFO with a sine wave and from another LFO with a sawtooth wave, each making up 50\% of the final signal.
-
 \section{The ModDock system}
 
 The majority of digital synthesizers, such as Propellerhead's\footnotemark{} \emph{Thor} or Native Instruments'\footnotemark[2] \emph{FM8} synthesizer, implement modulation in a static way. Instead of making it possible to use an LFO or an Envelope to modulate any parameter in a synthesis system, units, e.g. an oscillator, have dedicated LFOs and Envelopes, which modulate only one parameter --- mostly amplitude --- and only for this unit. On the other hand, some synthesizers like \emph{Massive}, also created by Native Instruments, implement a system where LFOs and Envelopes can be used by a variable number of units, for a variable number of parameters. For this thesis and the synthesizer created for it, such a system, here called the "ModDock" system, was emulated \footnotemark. The following sections will outline the process of defining and implementing the ModDock system.
@@ -1313,7 +1309,7 @@ It is possible to scale crossfade values resulting from radical crossfading as w
 
 \end{table}
 
-\section{Creating crossfade tables}
+\section{Creating Crossfade Tables}
 
 Because crossfade values are constant, i.e. there is only one possible tuple of multipliers for each crossfade value, it was decided that these multipliers should be stored in a table once and then looked-up. This is a lot more efficient than having to calculate each multiplier at every request. Similar to Wavetables, these crossfade tables are written to a file and then written into computer memory at program start-up. The only difference between Wavetable files and crossfade table files is that the former are stored in binary and the latter in plain-text, as the the size of crossfade tables is only 201 instead of 4096, the size of a Wavetable. Table \ref{code:crossfadetables} shows a computer program, this time written in Python, to compute and store crossfade tables.
 
@@ -1324,6 +1320,82 @@ Because crossfade values are constant, i.e. there is only one possible tuple of 
 \end{table}
 
 \chapter{Filtering Sound}
+
+A feature any digital synthesizer should include is the possibility to filter sound. In digital signal processing (DSP) and more specifically in audio processing, to filter a signal means to "alter [its] frequency spectrum [...] by amplifying or attenuating selected frequencies". \citebs{102}.\\
+
+\noindent The discussion of digital filters is closely linked to the concept of a signal's phase and how the phase relationship between two \emph{input} signals influences the properties of the \emph{output} signal produced when the two input signals interact and interfere either constructively or destructively. A simple examples of phase relationships from the analog realm is the situation where signals $A$ and $B$ are exactly identical and consequently have a phase difference $\Delta \phi$of $0$. If these signals are summed, the resulting signal $C$ will have an amplitude twice as high or low as that of signal $A$ or $B$ in every single point of its signal --- the input signals interfere \emph{constructively}. Conversely, if signals $A$ and $B$ have a phase shift of 180\degree or $\pi$ radians, the two signals interefere \emph{destructively} and result in signal $C$ having a constant amplitude of exactly $0$, as the amplitude values of signals $A$ and $B$ cancel each other out in each point of the signal.\\
+
+\noindent In digital systems, where signals are represented discretely, i.e. with periodically recorded samples, this behaviour can be modeled by applying a \emph{sample delay}, visualized by Figure \ref{fig:delay}. \citebs{103} For example, if a signal that is periodically represented by 10 samples is summed with a version of itself that is delayed or "held back" by 5 samples, that version will effectively be phase-shifted by 180\degree and thus the summation of these two signals will result in silence. Had only one sample been delayed instead of five, the phase difference $\Delta \phi$ would have only been 36\degree or $\frac{2\pi}{10}$ radians --- one tenth of a period. The amount of phase difference $\Delta \phi$ depends on both the number of samples a signal is represented by, so the sample rate of the system, and the number of samples that are delayed. An equation to calculate the phase difference in radians, given these parameters, is shown in Equation \ref{eq:phasediff}, where $f$ is the frequency of the sinusoid, $f_{s}$ the sample rate and $N$ the number of samples delayed. If $2\pi$ is replaced by 360, this Equation yields the same phase difference in degrees.\\
+
+\begin{equation}
+  \Delta\phi = \frac{N \times f}{f_{s}} \times 2\pi
+  \label{eq:phasediff}
+\end{equation}
+
+\noindent From Equation \ref{eq:phasediff} it can be deduced that a sample delay causes different phase relationships for different frequencies of the original signal. To give an example: let one sample be delayed in a system with a sample rate $f_{s}$ equal to 20 kHz. In such a system, a signal with a frequency of 1 Hz is represented by 20000 samples. Consequently, summing such a signal with a version of itself delayed by one sample would make the resulting, filtered signal almost twice as loud, as $\Delta\phi$ is only about 0.018\degree. However, a signal with the maximum possible frequency of 10 Khz (the Nyquist limit) is represented by only 2 samples. Therefore, delaying one sample equals a phase shift of 180\degree, which results in silence when the signal is summed with the delayed version of itself. This introduces the concept of a filter's \emph{frequency response}, which describes how a filter influences a signal's frequency spectrum. For the filter just described, the frequency response would look approximately like Figure \ref{fig:freqresp}.\\
+
+\begin{figure}
+  \includegraphics[scale=0.8]{img/freqresp}
+  \caption{The frequency response of a one-sample-delay filter. The most constructive interference is at 0 Hz, a signal that is constant with $f(t) = 1$. Such a signal with a frequency of 0 Hz is also called DC, for direct current, because in analog circuits a DC current is constant. The most destructive interference occurs at $\frac{f_{s}}{2}$ Hz.}
+  \label{fig:freqresp}
+\end{figure}
+
+\noindent One way to change the frequency response of a filter is to weight samples of the input signal as well as delayed samples with \emph{filter coefficients} \citebs{105, 110}. Whereas previously a one-sample delay could be modeled by Equation \ref{eq:onedelay1} \citebs{104}, where $y_{n}$ is the output, $x_{n}$ the current and $x_{n-1}$ the delayed sample, Equation \ref{eq:onedelay2} \citebs{103}, where $a$ and $b$ are the respective filter coefficients, must be used when samples are weighted with coefficients. Visually, such a one-sample delay can be represented with the diagram shown in Figure \ref{fig:onedelay}.
+
+\begin{equation}
+  y_{n} = x_{n} + x_{n-1}
+  \label{eq:onedelay1}
+\end{equation}
+
+\begin{equation}
+  y_{n} = bx_{n} + ax_{n-1}
+  \label{eq:onedelay2}
+\end{equation}
+
+\begin{figure}[h!]
+  \includegraphics[scale=0.8]{img/onedelay}
+  \caption{A one-sample delay with filter coefficients $a$ and $b$. Triangles are amplifiers/attenuators. Samples are summed at the circle with the + at its center.}
+  \label{fig:onedelay}
+\end{figure}
+
+\pagebreak
+
+\noindent While a filter's frequency response describes how the frequency content of a signal is affected by that filter, its influence on a signal in the time domain is given by the filter's \emph{impulse response} or \emph{kernel}. More precisely, an impulse response determines what a filter outputs when its input is a delta function, $\delta$, which has a normalized \emph{impulse}, meaning a sample with an amplitude of 1, as its first sample while all other subsequent samples have an amplitude of 0. The $\delta$ function is also referred to as the \emph{unit impulse}. \citedsp{108} For example, if the filter coefficients of the three-sample delay filter shown in Figure \ref{fig:threedelay} are all equal to 0.5 ($a = b = c = 0.5$), leading to Equation \ref{eq:threedelay}, then Figure \ref{fig:impresp} gives the impulse response of this filter when it is fed the $\delta$ function depicted in Figure \ref{fig:deltafunc}. What this impulse response shows is that if a sample $x_{n}$ with an amplitude of 1 is input into this filter, the first sample output will be $1 + \frac{0}{2}+ \frac{0}{2}+ \frac{0}{2} = 1$. The second sample to exit this filter will then be $0 + \frac{1}{2}+ \frac{0}{2}+ \frac{0}{2} = 0.5$, where, following the definition of the $\delta$ function given above, the new $x_{n}$ is equal to 0, while the previous $x_{n}$ that was equal to 1 has moved into the position of $x_{n-1}$. The third sample will be equal to $0 + \frac{0}{2} + \frac{0.5}{2}+ \frac{0}{2} = 0.25$ and finally the fourth sample has a value of $\frac{1}{8}$.
+
+\begin{equation}
+  y_{n} = x_{n} + \frac{x_{n-1}}{2}+ \frac{x_{n-2}}{2}+ \frac{x_{n-3}}{2}
+  \label{eq:threedelay}
+\end{equation}
+
+\begin{figure}
+  \includegraphics[scale=0.7]{img/threedelay}
+  \caption{A three-sample delay filter.}
+  \label{fig:threedelay}
+\end{figure}
+
+\begin{figure}
+
+  \TopFloatBoxes
+
+  \begin{floatrow}
+
+    \ffigbox{\caption{A delta function, also called a unit impulse. The first sample has an amplitude of 1 while all other samples are equal to 0.} \label{fig:deltafunc}}{ \includegraphics[scale=0.7]{img/deltafunc}}
+
+    \ffigbox{\caption{The impulse response of the three-sample delay filter depicted in Figure \ref{fig:threedelay}.} \label{fig:impresp}}{ \includegraphics[scale=0.7]{img/impresp}}
+
+  \end{floatrow}
+
+\end{figure}
+
+\noindent The operation that was just performed on the $\delta$ function is called "convolution". Convolution has its own mathematical symbol: $\ast$. To convolve a signal means to apply an impulse response to every of its samples. Table \ref{code:convolve} shows a C++ program to perform convolution (based on pseudo-code cf. Mitchell, 2008, p. 107).
+
+\begin{table}
+  \code{convolve.cpp}
+  \caption{A C++ function to convolve a signal vector with an impulse response vector. It should be noted that to convolve a signal vector of size $m$ with an impulse response vector of size $n$, the output vector must have a minimum size of $m + (n - 1)$.}
+  \label{code:convolve}
+\end{table}
+
+\noindent The filters described so far are called Finite Impulse Response (FIR) filters, because their impulse response is of finite size, like the one shown in Figure \ref{fig:impresp}, caused by the Filter given in Figure \ref{fig:threedelay}. 
 
 \begin{appendices}
 
