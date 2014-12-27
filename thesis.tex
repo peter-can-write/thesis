@@ -1081,6 +1081,8 @@ A ModDock is simply a collection of ModUnits. The ModDock collects all the modul
   \label{code:moddockconst}
 \end{table}
 
+\pagebreak
+
 \subsubsection{Sidechaining}
 
 One of the most interesting and equally complicated tasks encountered when creating the ModDock system was the implementation of side-chaining. Side-chaining makes it possible to have one ModUnit in a ModDock modulate the depth parameter of another ModUnit in that same ModDock. Borrowing from the terminology of digital communication, a ModUnit that side-chains another ModUnit is termed a "Master" and the ModUnit being side-chained is called a "Slave". Moreover, it was decided that any ModUnit that is not a Master shall be called a non-Master. A non-Master is any ModUnit that is either a Slave or not involved in any side-chaining relationship at all --- a normal ModUnit. It should be noted that the signal of a Master does not affect the final modulation value of a ModDock directly, i.e. the modulation value of a Master is not taken into consideration during the averaging process described above, but only indirectly, by modulating the depth of a Slave. Therefore, a ModUnit can be either a Master and contribute to the final modulation directly or be a non-Master and contribute to the final value directly. It should be noted that it is entirely possible to have one Master modulate multiple Slaves and for one Slave to have multiple Masters. Figure \ref{fig:flowsc} depicts these relationships in a flow-chart. Figure \ref{fig:scsketch} shows a scan of early sketches created while implementing side-chaining.\\
@@ -1497,7 +1499,11 @@ A band-reject filter, often referred to as a "notch" filter, can be seen as the 
 
 \pagebreak
 
-\section{Filter coefficients}
+\subsection{All-Pass Filters}
+
+A very special type of filter is the so-called all-pass filter. As its name implies, an all-pass filter lets all frequencies pass and stops none. What could possibly be the use of such a filter? The answer lies in the second alteration a filter performs on a signal: a change in phase. All-pass filters are used to change a signal's phase while leaving its amplitude un-altered at all frequencies.
+
+\section{Filter Coefficients}
 
 Let $\omega = \frac{2\pi f_{c}}{f_{s}}$ and $\alpha = \frac{\sin(\omega)}{2Q}$, where Q is the filter's \emph{Quality Factor}\footnotemark{}, then Table \ref{tb:coef} gives the values the various filter coefficients of a bi-quad filter must take on to achieve the wanted frequency response. These values were determined by Robert Bristow-Johnson from analog filter circuits \footnote{Source: \url{http://www.musicdsp.org/files/Audio-EQ-Cookbook.txt}}.
 
@@ -1515,7 +1521,8 @@ Let $\omega = \frac{2\pi f_{c}}{f_{s}}$ and $\alpha = \frac{\sin(\omega)}{2Q}$, 
     Low-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1-\cos(\omega)}{2(1 + \alpha)}$ & $\frac{1-\cos(\omega)}{1 + \alpha}$ & $\frac{1-\cos(\omega)}{2(1 + \alpha)}$\\\hline
     High-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1+\cos(\omega)}{2(1 + \alpha)}$ & $\frac{-(1+\cos(\omega))}{1 + \alpha}$ & $\frac{1+\cos(\omega)}{2(1 + \alpha)}$\\\hline
     Band-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{\sin(\omega)}{2(1 + \alpha)}$ & $0$ & $\frac{-\sin(\omega)}{2(1 + \alpha)}$\\\hline
-    Band-Reject & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1}{1 + \alpha}$ & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1}{1 + \alpha}$\\
+    Band-Reject & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1}{1 + \alpha}$ & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1}{1 + \alpha}$\\\hline
+    All-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $1$\\
     \hline
   \end{tabular}
 
@@ -1524,6 +1531,10 @@ Let $\omega = \frac{2\pi f_{c}}{f_{s}}$ and $\alpha = \frac{\sin(\omega)}{2Q}$, 
   \label{tb:coef}
 
 \end{table}
+
+\chapter{Applying Effects to Sound}
+
+Many effects found in modern digital synthesizers stem from the analog realm. For example, a very popular effect is the "Wah-Wah" effect Jimi Hendrix became famous for. Another common practice among musicians is to apply a reverberation effect, a "Reverb" for short, to a signal to improve its spacial dimension.
 
 \begin{appendices}
 
