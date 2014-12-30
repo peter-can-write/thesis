@@ -1,0 +1,27 @@
+\begin{table}[h!]
+
+  \centering
+
+  \renewcommand{\arraystretch}{3}
+  \begin{tabular}[]{ | c | c | c | c | c | c |}
+    \hline
+    \rowcolor[gray]{0.8}
+    Filter Type & $a_{1}$ & $a_{2}$ & $b_{0}$ & $b_{1}$ & $b_{2}$ \\
+    \hline
+    Low-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1-\cos(\omega)}{2(1 + \alpha)}$ & $\frac{1-\cos(\omega)}{1 + \alpha}$ & $\frac{1-\cos(\omega)}{2(1 + \alpha)}$\\
+    \hline
+    High-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1+\cos(\omega)}{2(1 + \alpha)}$ & $\frac{-(1+\cos(\omega))}{1 + \alpha}$ & $\frac{1+\cos(\omega)}{2(1 + \alpha)}$\\
+    \hline
+    Band-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{\sin(\omega)}{2(1 + \alpha)}$ & $0$ & $\frac{-\sin(\omega)}{2(1 + \alpha)}$\\
+    \hline
+    Band-Reject & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1}{1 + \alpha}$ & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1}{1 + \alpha}$\\
+    \hline
+    All-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $1$\\
+    \hline
+  \end{tabular}
+
+  \caption{Filter coefficients for a bi-quad filter.}
+
+  \label{tb:coef}
+
+\end{table}

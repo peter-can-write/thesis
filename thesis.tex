@@ -705,7 +705,7 @@ A Wavetable is a table (practically speaking an array) in which one stores pre-c
 \end{equation}
 
 \begin{equation}
-  i = i_{fund} \times f = \frac{L}{f_{s}} \times f
+  i = i_{fund} \cdot f = \frac{L}{f_{s}} \cdot f
   \label{eq:otherincr}
 \end{equation}
 
@@ -730,7 +730,7 @@ For almost all configurations of frequencies, table lengths and sample rates, th
 The length of the Wavetable must be chosen carefully to be both memory efficient and at the same time provide a decently accurate waveform resolution. An equation to calculate the size of a single wavetable in Kilobytes is given by Equation \ref{eq:tablesize}, where L is the table length and $N$ the number of bytes provided by the resolution of the data type used for samples, e.g. 8 bytes for the double-precision floating-point data type \texttt{double}.
 
 \begin{equation}
-  Size = \frac{L \times N}{1024}
+  Size = \frac{L \cdot N}{1024}
   \label{eq:tablesize}
 \end{equation}
 
@@ -905,7 +905,7 @@ A common concept associated with Envelopes is "ADSR", which stands for "Attack, 
 Mathematically, an Envelope segment can be modeled using a simple power function of the general form presented in Equation \ref{eq:power}, where $a_{final}$ is the final amplitude at the end of the segment, $a_{start}$ the initial amplitude at the beginning of the segment and $r$ the parameter responsible for the shape or "rate" of the segment. When $r$, which must kept between $0$ and $\infty$ (practically speaking some value around $10$), is equal to $1$, the segment has a linear rate and is thus a straight line connecting the initial amplitude with the final loudness. If $r$ is greater than 1, the function becomes a power function and consequently exhibits a non-linear increase or decrease in amplitude. Lastly, if $r$ is less than 1 but greater than 0, the function is termed a "radical function", since any term of the form $x^\frac{a}{b}$ can be re-written to the form $\sqrt[b]{x^a}$, where the numerator $a$ becomes the power of the variable and the denominator $b$ the radicand. Figure \ref{fig:rates} displays an envelope whose first segment has $r = 2$, a quadratic increase, after which the sound decays linearly, before increasing again, this time $r$ being equal to $\frac{1}{2}$ (a square root function). A C++ class for single Envelope segments is shown in Listing \ref{code:envseg}.
 
 \begin{equation}
-  a(t) = (a_{final} - a_{start}) \times t^r + a_{start}
+  a(t) = (a_{final} - a_{start}) \cdot t^r + a_{start}
   \label{eq:power}
 \end{equation}
 
@@ -938,7 +938,7 @@ Creating full Envelopes with a variable number of segments requires little more 
 A Low Frequency Oscillator, abbreviated "LFO", is an oscillator operating at very low frequencies, typically in the range below human hearing (0-20 Hz), used solely for the purposes of modulating other signals. The most common parameter to be modulated by an LFO in a synthesizer is the amplitude of another oscillator, to produce effects such as the well known "vibrato" effect. In this case, were the frequency of the LFO to be in the audible range, one would use the term Amplitude Modulation (AM), which is also a method for synthesizing sound. Moreover, Amplitude Modulation is one of the two main techniques for transmitting information over electro-magentic waves, alongside Frequency Modulation (FM), but that is a different subject, entirely. Equation \ref{eq:lfoam} shows how an LFO can be used to change the amplitude of another oscillator\footnote{This is the same equation as for AM.}. Figure \ref{fig:lfo1} shows a 440 Hz sine wave, Figure \ref{fig:lfo2} displays the same sine wave now modulated by a 2 Hz LFO and in Figure \ref{fig:lfo3} the frequency of the LFO has been increased to 20 Hz to produce a vibrato effect. It should be noted that an LFO can also modulate any other parameter, such as the rate of an Envelope segment.
 
 \begin{equation}
-  O(t) = (A_{osc} + (A_{lfo} \times sin(\omega_{lfo}t + \phi_{lfo}))) \times sin(\omega_{osc}t + \phi_{osc})
+  O(t) = (A_{osc} + (A_{lfo} \cdot sin(\omega_{lfo}t + \phi_{lfo}))) \cdot sin(\omega_{osc}t + \phi_{osc})
   \label{eq:lfoam}
 \end{equation}
 
@@ -988,10 +988,10 @@ A common sight in many modern digital synthesizers, such as Native Instruments'\
   \label{fig:lfoseq}
 \end{figure}
 
-\noindent For the purpose of this thesis, such an LFO sequence was created. Regarding the implementation in C++, there is little difference between an LFO Sequence and an Envelope Segment Sequence, except for the fact that now each individual segment has an LFO that can be accessed through the interface of the class to change the parameters or the waveform of each LFO. One of the two parameters that deserves to be discussed, however, is the frequency or "rate" of such an LFO sequence. Just like the frequency of an oscillator describes the number of cycles its waveform completes every second, the rate of an LFO Sequence determines how often the entire sequence is traversed in one second. Practically speaking, this involves adjusting the length of individual segments in such a way that the combined length equals the wanted duration. To give an example: if the user wishes to change the rate of an LFO Sequence with 10 segments to 1 Hz, each individual segment must have a duration of 0.1 seconds (100 milliseconds), so that at the end of the sequence, exactly $10 \text{ segments} \times 0.1 \text{ seconds} = 1 \text{ second}$ will have passed. The length of a single segment can be derived from Equation \ref{eq:lfoseq1}, where $r$ is the rate of the LFO Sequence and $N$ the number of segments in the sequence.
+\noindent For the purpose of this thesis, such an LFO sequence was created. Regarding the implementation in C++, there is little difference between an LFO Sequence and an Envelope Segment Sequence, except for the fact that now each individual segment has an LFO that can be accessed through the interface of the class to change the parameters or the waveform of each LFO. One of the two parameters that deserves to be discussed, however, is the frequency or "rate" of such an LFO sequence. Just like the frequency of an oscillator describes the number of cycles its waveform completes every second, the rate of an LFO Sequence determines how often the entire sequence is traversed in one second. Practically speaking, this involves adjusting the length of individual segments in such a way that the combined length equals the wanted duration. To give an example: if the user wishes to change the rate of an LFO Sequence with 10 segments to 1 Hz, each individual segment must have a duration of 0.1 seconds (100 milliseconds), so that at the end of the sequence, exactly $10 \text{ segments} \cdot 0.1 \text{ seconds} = 1 \text{ second}$ will have passed. The length of a single segment can be derived from Equation \ref{eq:lfoseq1}, where $r$ is the rate of the LFO Sequence and $N$ the number of segments in the sequence.
 
 \begin{equation}
-  l_{seg} = \frac{1}{r \times N}
+  l_{seg} = \frac{1}{r \cdot N}
   \label{eq:lfoseq1}
 \end{equation}
 
@@ -1003,7 +1003,7 @@ A common sight in many modern digital synthesizers, such as Native Instruments'\
 \end{equation}
 
 \begin{equation}
-  f_{real} = \frac{f_{s}}{d} \times f_{displayed}
+  f_{real} = \frac{f_{s}}{d} \cdot f_{displayed}
   \label{eq:lfoseq3}
 \end{equation}
 
@@ -1045,7 +1045,7 @@ In order to let units of the synthesizer created for this thesis share certain b
 
 \subsubsection{The \texttt{modulate} method}
 
-All classes derived from the ModUnit class must implement the \texttt{modulate} method, which takes the sample to modulate, a depth value between 0 (no modulation) and 1 (full modulation) as well as a maximum boundary as its arguments. In the case of LFOs, the maximum boundary parameter determines the value that is added to the sample. For example, when the amplitude of a unit is modulated, the maximum boundary is 1, meaning that the value added to the sample is in the range of $[-A_{LFO} \times 1; A_{LFO} \times 1]$, whereas for the rate parameter of Envelope segments, where the maximum boundary is 10, the range is $[-A_{LFO} \times 10; A_{LFO} \times 10]$. The declaration of the \texttt{modulate} method in the ModUnit class is given below.
+All classes derived from the ModUnit class must implement the \texttt{modulate} method, which takes the sample to modulate, a depth value between 0 (no modulation) and 1 (full modulation) as well as a maximum boundary as its arguments. In the case of LFOs, the maximum boundary parameter determines the value that is added to the sample. For example, when the amplitude of a unit is modulated, the maximum boundary is 1, meaning that the value added to the sample is in the range of $[-A_{LFO} \cdot 1; A_{LFO} \cdot 1]$, whereas for the rate parameter of Envelope segments, where the maximum boundary is 10, the range is $[-A_{LFO} \cdot 10; A_{LFO} \cdot 10]$. The declaration of the \texttt{modulate} method in the ModUnit class is given below.
 
 \begin{lstlisting}
   virtual double modulate(double sample, double depth, double maximum) = 0;
@@ -1110,7 +1110,7 @@ One of the most interesting and equally complicated tasks encountered when creat
 In digital music, it is often useful to crossfade or "mix" between two signals\footnotemark{}. When two signals $A$ and $B$ are used to produce a new signal $C$, crossfading means to control the amount by which signal $C$ is composed of signal $B$ in dependence of the amount by which it is composed of signal $A$. This is especially interesting when the two signals stem from ModUnits, making it possible to mix between their modulation signals. This idea lead to the creation of the \texttt{Crossfader} class, which is itself a ModUnit and will be described in this section. Equation \ref{eq:lcrossfade1} defines the concept of crossfading, in its most basic form, mathematically.
 
 \begin{equation}
-  C(t) = (A(t) \times x) + (B(t) \times (1 - x)), \text{where } x \in [0;1]
+  C(t) = (A(t) \cdot x) + (B(t) \cdot (1 - x)), \text{where } x \in [0;1]
   \label{eq:lcrossfade1}
 \end{equation}
 
@@ -1123,7 +1123,7 @@ The following sections will examine three techniques of crossfading as described
 Linear crossfading is the simplest form of crossfading. Its mathematical definition was already given in Equation \ref{eq:lcrossfade1}, showing that the crossfade value for the "right" signal, $B$, is indirectly proportional to the value for the "left" signal, $A$. This means that when the left value increases, the right value decreases and vice-versa. It should be noted that it is common to provide a range of $[-1;1]$ or $[-100;100]$ (preferred) instead of the mathematically easier range of $[0;1]$, simply to make the interaction more intuitive to the user. Therefore, Equation \ref{eq:lcrossfade1} must be re-formed to Equation \ref{eq:lcrossfade2}. Table \ref{tb:lcrossfade} shows crossfade values alongside the resulting multipliers for signals $A$ and $B$.
 
 \begin{equation}
-  C(t) = (A(t) \times \frac{100 - x}{200}) + (B(t) \times \frac{100 + x}{200}), \text{where } x \in [-100;100]
+  C(t) = (A(t) \cdot \frac{100 - x}{200}) + (B(t) \cdot \frac{100 + x}{200}), \text{where } x \in [-100;100]
   \label{eq:lcrossfade2}
 \end{equation}
 
@@ -1158,7 +1158,7 @@ Linear crossfading is the simplest form of crossfading. Its mathematical definit
 Another technique of crossfading involves the use of the $\sin$ function to compute the multipliers for signals $A$ and $B$. This is said to improve the "smoothness" of the mix \citebs{98}. Because the $\sin$ function operates with radians, the crossfade values from Equation \ref{eq:lcrossfade2} must be multiplied with $\frac{\pi}{2}$, leading to Equation \ref{eq:scrossfade} for cross-fading with the $\sin$ function. It should be noted that the center value for this technique is not $0.5$, but $\frac{\sqrt{2}}{2}$ or $\sin(\frac{\pi}{4})$. Table \ref{tb:scrossfade} gives cross-fade values using the $\sin$ function and the multipliers that result from them. Figure \ref{fig:lscrossfade} shows how this method of crossfading compares to linear crossfading in a coordinate system.
 
 \begin{equation}
-  C(t) = (A(t) \times \sin(\frac{100 - x}{200} \times \frac{\pi}{2})) + (B(t) \times \sin(\frac{100 + x}{200} \times \frac{\pi}{2})), \text{where } x \in [-100;100]
+  C(t) = (A(t) \cdot \sin(\frac{100 - x}{200} \cdot \frac{\pi}{2})) + (B(t) \cdot \sin(\frac{100 + x}{200} \cdot \frac{\pi}{2})), \text{where } x \in [-100;100]
   \label{eq:scrossfade}
 \end{equation}
 
@@ -1203,7 +1203,7 @@ Another technique of crossfading involves the use of the $\sin$ function to comp
 Another method of non-linear crossfading involves the computation of signal multipliers according to a square-root function. Similar to crossfading with the $\sin$ function, values do not always add up to $1$ for radical crossfading. Moreover, the middle value is again $\frac{\sqrt{2}}{2}$ or $\sin(\frac{\pi}{4})$. Equation \ref{eq:sqrtcrossfade} shows the appropriate mathematical definition for radical crossfading and Table \ref{tb:sqrtcrossfade} displays crossfade values alongside resultant multipliers. Additionally, Figure \ref{fig:sqrtcrossfade} puts radical crossfading into a coordinate-system.
 
 \begin{equation}
-  C(t) = (A(t) \times \sqrt{\frac{100 - x}{200}}) + (B(t) \times \sqrt{\frac{100 + x}{200}}), \text{where } x \in [-100;100]
+  C(t) = (A(t) \cdot \sqrt{\frac{100 - x}{200}}) + (B(t) \cdot \sqrt{\frac{100 + x}{200}}), \text{where } x \in [-100;100]
   \label{eq:sqrtcrossfade}
 \end{equation}
 
@@ -1250,12 +1250,12 @@ Another method of non-linear crossfading involves the computation of signal mult
 It is possible to scale crossfade values resulting from radical crossfading as well as from crossfading with the $\sin$ function in such way that the multipliers at the center crossfade value are again both $0.5$ instead of $\frac{\sqrt{2}}{2}$. To do so, one simply needs to multiply all multipliers by $\frac{\sqrt{2}}{2}$, since $(\frac{\sqrt{2}}{2})^2 = 0.5$. This leads to Equations \ref{eq:scrossfadesc}, for crossfading with the $\sin$ function, and \ref{eq:sqrtcrossfadesc}, for radical crossfading as well as Tables \ref{eq:scrossfadesc} and \ref{eq:sqrtcrossfadesc} for respective multipliers. One caveat of scaling is that all values become smaller.
 
 \begin{equation}
-  C(t) = (A(t) \times \sin(\frac{100 - x}{200} \times \frac{\pi}{2}) \times \frac{\sqrt{2}}{2}) + (B(t) \times \sin(\frac{100 + x}{200} \times \frac{\pi}{2}) \times \frac{\sqrt{2}}{2}), \text{where } x \in [-100;100]
+  C(t) = (A(t) \cdot \sin(\frac{100 - x}{200} \cdot \frac{\pi}{2}) \cdot \frac{\sqrt{2}}{2}) + (B(t) \cdot \sin(\frac{100 + x}{200} \cdot \frac{\pi}{2}) \cdot \frac{\sqrt{2}}{2}), \text{where } x \in [-100;100]
   \label{eq:scrossfadesc}
 \end{equation}
 
 \begin{equation}
-  C(t) = (A(t) \times \sqrt{\frac{100 - x}{200}} \times \frac{\sqrt{2}}{2}) + (B(t) \times \sqrt{\frac{100 + x}{200}} \times \frac{\sqrt{2}}{2}), \text{where } x \in [-100;100]
+  C(t) = (A(t) \cdot \sqrt{\frac{100 - x}{200}} \cdot \frac{\sqrt{2}}{2}) + (B(t) \cdot \sqrt{\frac{100 + x}{200}} \cdot \frac{\sqrt{2}}{2}), \text{where } x \in [-100;100]
   \label{eq:sqrtcrossfadesc}
 \end{equation}
 
@@ -1330,7 +1330,7 @@ A feature any digital synthesizer should include is the possibility to filter so
 \noindent In digital systems, where signals are represented discretely, i.e. with periodically recorded samples, this behaviour can be modeled by applying a \emph{sample delay}. \citebs{103} For example, if a signal that is periodically represented by 10 samples is summed with a version of itself that is delayed by 5 samples, that version will effectively be phase-shifted by 180\degree and thus the summation of these two signals will result in silence. Had only one sample been delayed instead of five, the phase difference $\Delta \phi$ would have only been 36\degree or $\frac{2\pi}{10}$ radians --- one tenth of a period. The amount of phase difference $\Delta \phi$ depends on both the number of samples a signal is represented by, so the sample rate of the system, and the number of samples that are delayed. An equation to calculate the phase difference in radians, given these parameters, is shown in Equation \ref{eq:phasediff}, where $f$ is the frequency of the signal, $f_{s}$ the sample rate and $N$ the number of samples delayed. If $2\pi$ is replaced by 360, this Equation yields the same phase difference in degrees.\\
 
 \begin{equation}
-  \Delta\phi = \frac{N \times f}{f_{s}} \times 2\pi
+  \Delta\phi = \frac{N \cdot f}{f_{s}} \cdot 2\pi
   \label{eq:phasediff}
 \end{equation}
 
@@ -1445,7 +1445,7 @@ In the synthesizer created for this thesis, the \texttt{Filter} class implements
 
 Bi-quad filters can be used to create a variety of different filter types and corresponding frequency responses, simply by adjusting the filter's coefficients. When examining a frequency response, the term \textbf{passband} is used for the frequency range that should ideally not be affected by the filter. Conversely, the \textbf{stopband} are those frequency components the filter should, ideally, silence completely. The frequency at which the transition from minimum to maximum attenuation occurs is called the \textbf{cutoff frequency} and is denoted by $f_{c}$. Because no filter is perfect, this transition usually does not happen precisely at the specified cutoff frequency. Rather, there is a certain \textbf{transition band}, which is the range of frequencies where the transition takes place. Within this transition band, the cutoff frequency is defined as the frequency component where the amplitude reaches $\frac{\sqrt{2}}{2}$ (0.707...) or -3dB in power\footnotemark. If the transition band is narrow, the filter is said to have a fast \textbf{roll-off}. If it is rather wide, the roll-off is said to be slow. \citedsp{268} Figure \ref{fig:filterterm} depicts a typical frequency response and labels the relevant bands and frequencies. It should be noted that bi-quad filters and IIR filters in general show quite slow roll-off.
 
-\footnotetext{A signal's power is measured in decibels (dB), which is a logarithmic unit of measurement. 20dB equals an increase in amplitude by one order of magnitude ($\times 10$) and -20dB a decrease by one order of magnitude ($\times 0.1$).}
+\footnotetext{A signal's power is measured in decibels (dB), which is a logarithmic unit of measurement. 20dB equals an increase in amplitude by one order of magnitude ($\cdot 10$) and -20dB a decrease by one order of magnitude ($\cdot 0.1$).}
 
 \begin{figure}[h!]
   \includegraphics[scale=0.7]{img/filterterm}
@@ -1509,30 +1509,9 @@ Let $\omega = \frac{2\pi f_{c}}{f_{s}}$ and $\alpha = \frac{\sin(\omega)}{2Q}$, 
 
 \footnotetext{The Quality Factor can be said to control to some extent the bandwith of a filter's transition band as well as the amplitude peak of the passband before transitioning to the stopband.}
 
-\begin{table}[h!]
+\input{coeftable.tex}
 
-  \centering
-
-  \renewcommand{\arraystretch}{3}
-  \begin{tabular}[]{ | c | c | c | c | c | c |}
-    \hline
-    \rowcolor[gray]{0.8}
-    Filter Type & $a_{1}$ & $a_{2}$ & $b_{0}$ & $b_{1}$ & $b_{2}$ \\\hline
-    Low-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1-\cos(\omega)}{2(1 + \alpha)}$ & $\frac{1-\cos(\omega)}{1 + \alpha}$ & $\frac{1-\cos(\omega)}{2(1 + \alpha)}$\\\hline
-    High-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1+\cos(\omega)}{2(1 + \alpha)}$ & $\frac{-(1+\cos(\omega))}{1 + \alpha}$ & $\frac{1+\cos(\omega)}{2(1 + \alpha)}$\\\hline
-    Band-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{\sin(\omega)}{2(1 + \alpha)}$ & $0$ & $\frac{-\sin(\omega)}{2(1 + \alpha)}$\\\hline
-    Band-Reject & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1}{1 + \alpha}$ & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1}{1 + \alpha}$\\\hline
-    All-Pass & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{1 - \alpha}{1 + \alpha}$ & $\frac{-2\cos(\omega)}{1 + \alpha}$ & $1$\\
-    \hline
-  \end{tabular}
-
-  \caption{Filter coefficients for a bi-quad filter.}
-
-  \label{tb:coef}
-
-\end{table}
-
-\chapter{Applying Effects to Sound}
+\chapter{Effects}
 
 While the digital revolution made it possible to create popular effects like Echos, Flangers or Reverbs more efficiently using logic circuits and digital signal processing, most effects found in digital synthesizers today have a long history of analog implementation. Rock stars like Jimi Hendrix, famous for using the "Wah-Wah" effect, applied effects to their sound long before digitization. The following sections will describe four common effects and explain their implementation.
 
@@ -1579,7 +1558,7 @@ While simple delay lines are easy to implement, they are not efficient if the de
 It is also possible to have fractional delay values if samples are interpolated. Equation \ref{eq:interpolatedelay} shows how this interpolation process is performed, where $i$ is the integral and $f$ the fractional portion of the $n$-sample delay. Note that this is the same interpolation algorithm that is performed to retrieve sample values from fractional Wavetable indices.
 
 \begin{equation}
-  y_{n} = x_{i} + ((x_{i-1} - x_{i}) \times f)
+  y_{n} = x_{i} + ((x_{i-1} - x_{i}) \cdot f)
   \label{eq:interpolatedelay}
 \end{equation}
 
@@ -1604,7 +1583,7 @@ Two parameters commonly associated with delay lines are \emph{feedback} and \emp
 Almost every effect, including the Delay effect, has what is called a "dry/wet" control. If the dry signal is the unchanged input signal and the wet signal the fully processed output signal, the dry/wet control determines how much of an effect is applied to the dry signal. Equation \ref{eq:drywet} gives a mathematical definition for this principle, where $dw$ is the dry/wet value between 0 (no effect) and 1 (full effect), $x_{n}$ the unchanged, "dry", input sample and $y_{n}$ the "wet" output signal from the effect.
 
 \begin{equation}
-  z_{n} = (x_{n} \times (1 - dw)) + (y_{n} \times dw)
+  z_{n} = (x_{n} \cdot (1 - dw)) + (y_{n} \cdot dw)
   \label{eq:drywet}
 \end{equation}
 
@@ -1622,7 +1601,7 @@ In the synthesizer created for this thesis, a flexible delay line with all the p
 
 \section{Echo}
 
-The first effect that can be implemented very easily using just delay lines is the Echo effect. An echo is the result of summing an input sample with the output sample of a delay line. An implementation from the \texttt{Echo} class, derived from the \texttt{Delay} class, is shown in Table \ref{code:echo}.
+The first effect that can be implemented very easily using just delay lines is the Echo effect. It is the result of summing an input sample with the output sample of a delay line. An implementation from the \texttt{Echo} class, derived from the \texttt{Delay} class, is shown in Table \ref{code:echo}.
 
 \begin{table}[h!]
   \code{echo.cpp}
@@ -1632,7 +1611,7 @@ The first effect that can be implemented very easily using just delay lines is t
 
 \section{Flanger}
 
-A Flanger effect is created by mixing a signal with a delayed version of itself and varying the time by which it is delayed with a Low Frequency Oscillator. The middle delay time around which the LFO oscillates is called the "center" value. The term "depth" is used for the value that is added or subtracted to the center value periodically. For example, if the center value is 10 ms and the depth 4 ms, the delay time will oscillate between 6 ms and 14 ms. The "rate" parameter controls how fast the LFO oscillates. A Flanger's "feedback" control is not the same as for delay lines, as it does not control how much of the output signal is fed back into the delay line. Rather, the feedback value determines how much of the sample at the center delay value is subtracted from the input sample. Varying the feedback controls the coloration and brightness of the sound produced. Lastly, a Flanger also has a dry/wet parameter, whose function was already described. Figure \ref{fig:flanger} depicts a block diagram for a Flanger. The sound produced by a Flanger effect can be described as a "swooshing" sound. \citebs{136} Table \ref{code:flanger} shows the \texttt{Flanger} class' \texttt{process} method.
+A Flanger effect is created by mixing a signal with a delayed version of itself and varying the time by which it is delayed with a Low Frequency Oscillator. The middle delay time around which the LFO oscillates is called the "center" value. The term "depth" is used for the value that is added to or subtracted from the center value periodically. For example, if the center value is 10 ms and the depth 4 ms, the delay time will oscillate between 6 ms and 14 ms. The "rate" parameter controls how fast the LFO oscillates. A Flanger's "feedback" control is not the same as for delay lines, as it does not control how much of the output signal is fed back into the delay line. Rather, the feedback value determines how much of the sample at the center delay value is subtracted from the input sample. Varying the feedback controls the coloration and brightness of the sound produced. Lastly, a Flanger also has a dry/wet parameter, whose function was already described. Figure \ref{fig:flanger} depicts a block diagram for a Flanger. The sound produced by a Flanger effect can be described as a "swooshing" sound. \citebs{136} Table \ref{code:flanger} shows the \texttt{Flanger} class' \texttt{process} method.
 
 \begin{figure}[p!]
   \includegraphics[scale=0.7]{img/flanger}
@@ -1694,6 +1673,126 @@ Table \ref{code:reverb} shows relevant member of function of the \texttt{Reverb}
   \caption{This code exerpt from the \texttt{Reverb} class shows how the Schroeder Reverb's delay lines and all-pass filters are initialized and then used to reveberate a signal.}
   \label{code:reverb}
 \end{table}
+
+\chapter{Synthesizing Sound}
+
+The most important feature of a synthesizer is its capability to synthesize sound. Synthesizing sound means to combine two or more (audio) signals to produce a new signal. The many possibilities to synthesize sound waves with variable parameters enable musicians to create an uncountable number of different sounds. A synthesizer can be configured to resemble natural sounds such as that of wind or water waves, can emulate other instruments like pianos, guitars or bass drums and, finally, a synthesizer can also be used to produce entirely new, electronic sounds. However, not all synthesis methods available to the creator of a digital synthesizer are equally suited to the various possible sounds just described. This chapter will examine five popular methods of synthesis --- Additive, Subtractive, Granular, AM and FM synthesis --- while focusing especially on the last technique, which was implemented for the purpose of this thesis.
+
+\section{Additive Synthesis}
+
+Additive Synthesis was already introduced in Chapter 2 as a method to produce complex waveforms. It involves the summation of a finite set of waveforms that can either be simple sinusoids or complex waves themselves --- such as sawtooth or square waves. As it was already shown, this summation --- formally called a Fourier Series --- can produce a myriad of different waveforms. An example for an Additive Synthesizer is Native Instrument's \emph{Razor}, which lets the user additively synthesize up to 320 partials, as well as a simple church organ, whose characteristic sound is the product of summing the sounds emitted by its tubes. In terms of the natural world, Additive Synthesis occurs when any two sound waves meet and combine to produce a new sound.
+
+\section{Subtractive Synthesis}
+
+While Additive Synthesis creates sounds by summing many individual waveforms, Subtractive Synthesis starts out with a complex waveform very rich in harmonics, like a sawtooth wave, and then subtracts or "carves" away parts of that sound by filtering and attenuating selected frequencies. A very prominent example of Subtractive Synthesis is the human voice, which makes use of the larynx to shape air coming from the lungs in order to produce certain phonemes, which eventually make up words, sentences and our ability to communicate.
+
+\section{Granular Synthesis}
+
+A very special form of synthesis is "Granular Synthesis". It produces sound by "splicing" or "concatenating" very short sound samples, referred to as \emph{grains}, "often only a few milliseconds in length". \citebs{12} The synthesized sound can be altered by changing the frequency, amplitude or phase at which certain grains are played. The synthesizer \emph{Malström} by Propellerhead implements a form of Granular Synthesis (\url{https://www.propellerheads.se/products/reason/instruments/malstrom/}).
+
+\section{Amplitude Modulation Synthesis}
+
+During the discussion of Low Frequency Oscillators (LFOs) in Chapter 3, it was mentioned how a vibrato effect can be achieved by varying the amplitude of a sound using an LFO with a frequency $f$ in an approximate range of $]0;20]$ Hertz. If the frequency or "rate" of modulation is in the audible range of 20 to 20000 Hertz, this modulation is termed "Amplitude Modulation" and results in side-bands in the signal's frequency spectrum and a consequent change of timbre. In both Amplitude Modulation and Frequency Modulation Synthesis the original signal is termed the "carrier" signal $c(t)$ and the modulation signal $m(t)$ the "modulator". Equation \ref{eq:am} shows a formula for Amplitude Modulation (Synthesis) with two signals, where $A_{c}$ is the carrier's amplitude and $A_{m}$ that of the modulator. Because already two oscillators can produce a great variety of interesting sounds, Amplitude Modulation Synthesis is a very popular synthesis method found both in analog as well as digital synthesizers.
+
+\begin{equation}
+  f(t) = (A_{c} + A_{m}\cdot\sin(\omega_{m} t + \phi_{m}))\cdot\sin(\omega_{c} t + \phi_{c})
+  \label{eq:am}
+\end{equation}
+
+\section{Frequency Modulation Synthesis}
+
+The difference between Amplitude Modulation and Frequency Modulation Synthesis is that in the latter, the modulator varies the carrier's frequency as opposed to its amplitude. This produces very complex changes in the carrier's frequency spectrum and introduces a theoretically infinite set of side-bands, which contribute to the characteristic sound and timbre of FM Synthesis. The fact that Frequency Modulation can be used to synthesize audio signals was first discovered by John Chowning, who he described the mathematical principles and practical implications of FM Synthesis in his 1973 paper "The Synthesis of Complex Audio Spectra by Means of Frequency Modulation". In 1974 his employer, Stanford University, licensed his invention to the Yamaha Corporation, a Japanese technology firm, which went on to create the first FM synthesizers, including the very popular DX-7 model, which many digital FM synthesizers, such as Native Instrument's \emph{FM8}, try to emulate. Equation \ref{eq:fm} gives a full mathematical definition for Frequency Modulation (Synthesis). What Equation \ref{eq:fm} shows is that FM Synthesis works by summing the carrier's instantaneous frequency $\omega_{c}$, the carrier signal being $c(t)$, with the output of the modulator signal $m(t)$, thereby varying the carrier frequency periodically. The degree of frequency variation, $\Delta f_{c}$, depends on the modulator's amplitude, $A_{m}$. Therefore, $\Delta f_{c} = A_{m}$. Figure \ref{fig:fmlow} shows how frequency modulation effects a signal. Note that this Figure should only show how FM works. It is not a realistic example of FM \emph{Synthesis}, as the modulator frequency is not in the audible range.
+
+\pagebreak
+
+\begin{figure}[]
+  \includegraphics[scale=0.7]{img/fmlow}
+  \caption{The first figure shows the carrier signal $c(t)$ with its frequency $f_{c}$ or angular frequncy $\omega_{c}$ equal to 100 Hz. The signal beneath the carrier is that of the modulator, $m(t)$, which has a frequency $f_{m}$ or $\omega_{m}$ of 5 Hz. When modulator's amplitude $A_{m}$ is increased to 50 (instead of \textasciitilde{} 0.4, as shown here) and used to modulate the frequency of the carrier, the last signal $f(t)$ is produces. While these figures show how FM works, they are not a good example of FM synthesis, because the modulator frequncy is not in the audible range.}
+  \label{fig:fmlow}
+\end{figure}
+
+\begin{multicols}{2}
+  \begin{equation}
+    c(t) = A_{c} \cdot \sin(\omega_{c}t + \phi_{c})
+  \end{equation}\break
+  \begin{equation}
+    m(t) = A_{m} \cdot \sin(\omega_{m}t + \phi_{m})
+  \end{equation}
+\end{multicols}
+
+\begin{equation}
+  f(t) = A_{c} \cdot \sin((\omega_{c} + m(t))t + \phi_{c}) = A_{c} \cdot \sin((\omega_{c} + A_{m} \cdot \sin(\omega_{m}t + \phi_{m}))t + \phi_{c})
+  \label{eq:fm}
+\end{equation}
+
+\subsection{Phase Modulation}
+
+Frequency Modulation is very closely connected to Phase Modulation. As a matter of fact, the two forms of modulation produce the \texttt{exact} same result, just by different means. While Phase Modulation involves directly modulating the phase, Frequency Modulation influences the phase \emph{increment} (which is the frequency). The ultimate result of both methods is a change of phase, which is why the two modulation techniques produce the same sound. The aforementioned Yamaha DX-7 synthesizer, for example, was only marketed as an FM synth. It really used Phase Modulation.
+
+\subsection{Sidebands}
+
+One of the most noticeable effects of FM Synthesis is that it adds \emph{sidebands} to a carrier signal's frequency spectrum. Sidebands are frequency components higher or lower than the carrier frequency, whose spectral position, amplitude as well as relative spacing depends on two factors: the ratio between the carrier and modulator frequency, referred to as the "C:M ratio", and the modulation index $\beta$, which in turn depends on the modulator signal's amplitude and frequency.
+
+\subsection{C:M Ratio}
+
+The spacing and positions of sidebands on the carrier signal's frequency spectrum depends on the ratio between the frequency of the carrier signal, $C$, and that of the modulator, $M$. This $C:M$ ratio gives insight into a variety of properties of a frequency-modulated sound. Most importantly, when the $C:M$ ratio is known, Equation \ref{eq:sbcm} gives all the relative frequency values of the theoretically infinite set of sidebands. Equation \ref{eq:sbabs} shows how to calculate $\omega_{sb_{n}}$, the angular frequency of the $n$-th sideband, absolutely. What these equations show is that for any given $C:M$ ratio, the sidebands are found at relative frequencies $C + M, C + 2M, C + 3M, ... $ and absolute frequencies %
+$\omega_{c} + \omega_{m}, \omega_{c} + 2 \omega_{m},\omega_{c} + 3 \omega_{m}, ... Hz$.
+
+\begin{equation}
+  \omega_{{sb}_{n}} = C \pm n \cdot M, \text{where } n \in [0;\infty[
+  \label{eq:sbcm}
+\end{equation}
+
+\begin{equation}
+  \omega_{{sb}_{n}} = \omega_{c} \pm n \cdot \omega_{m}, \text{where } n \in [0;\infty[
+  \label{eq:sbabs}
+\end{equation}
+
+\noindent When examining these two equations one may notice that there exist equally many sidebands with negative frequencies, found relatively at $C - M, C - 2M, C - 3M$ and so on. Simply put, a signal with a negative frequency is equal to its positive-frequency counterpart but with inverted amplitude, which can also be seen as a 180\degree or $\pi$ radian phase-shift (\url{http://www.sfu.ca/~truax/fmtut.html}, accessed 30 December 2014). Equation \ref{eq:negfreq} defines this formally. What this also means is that if there is a sideband at a frequency $f$ and another sideband at $-f$ Hertz, these two sidebands will phase-cancel completely if their amplitudes are the same. If not, the positive side-band will be reduced in amplitude proportionally. Consequently, it may happen that also the original carrier frequency is reduced in amplitude, for example at a $C:M$ ratio of 1:2, since the first "lower" sideband, meaning with a lower frequency than the carrier, is at $C - M = C - 2C = -C$ Hertz.
+
+\begin{equation}
+  A \cdot \sin(-\omega t + \phi) = -A \cdot \sin(\omega t + \phi) = A \cdot \sin(\omega t + \phi - \pi)
+  \label{eq:negfreq}
+\end{equation}
+
+\noindent Figure \ref{fig:sb} shows the frequency spectrum of a carrier signal with a frequency $f_{c}$ of 200 Hz that is modulated by a modulator signal with its frequency $f_{m}$ equal to 100 Hz. The carrier frequency is seen on the spectrum as the peak at 200 Hz. The other peaks are the sidebands. Because the $C:M$ ratio here is $2:1$, the first two lower sidebands are found at relative positions $C-M=2-1=1$ and $C-2M=2-2=0$, $2$ being the carrier. The first two upper sidebands have absolute frequency values of $\omega_{c} + \omega_{m} = 200 + 100 = 300$ and %
+$\omega_{c} +\omega_{m} = 200 + 200 = 400$ Hertz.\\
+
+\begin{figure}[]
+  \includegraphics[scale=0.5]{img/sb}
+  \caption{The frequency spectrum of a $C:M$ ratio of $2:1$, where carrier frequency $f_{c}$ is 200 and the modulator frequency $f_{m}$ 100 Hertz.}
+  \label{fig:sb}
+\end{figure}
+
+\pagebreak
+
+\noindent The $C:M$ ratio can also help to understand how a frequency-modulated signal will sound. For example, a ratio of $1:2$ will sound similar to a square wave, since the harmonic series produced by this ratio will have sidebands at $3C, 5C, 7C$ etc., so, all odd partials. On the other hand, a $C:M$ ratio of $1:1$ will cause the resulting sound to resemble a sawtooth wave, as the sidebands are positoned at $2C, 3C, 4C, ...$, which fits the requirement of a sawtooth wave to be composed of \emph{all} partials. Figure \ref{fig:fmsaw} shows how a ratio of $1:1$ causes the signal to look a lot like a sawtooth wave with two partials. Even though this waveform includes all partials, it does not look like a perfect sawtooth wave, as it would if it had been created by additive synthesis. The reason why is that the amplitude of each partial is not the inverse of the partial number, but some other value. The same applies to square waves.\\
+
+\begin{figure}[]
+  \includegraphics[scale=0.7]{img/fmsaw}
+  \caption{A sound wave produced by FM Synthesis that resembles a sawtooth wave with two partials visually as well as acoustically. The reason why is that the $C:M$ ratio was $1:1$ in this case, causing sidebands to be a perfect harmonic series.}
+  \label{fig:fmsaw}
+\end{figure}
+
+\noindent There is also a way to find out if a $C:M$ ratio will result in a harmonic series or in an inharmonic series. To re-cap, a harmonic \emph{sideband} is an integer multiple of the carrier frequency while an inharmonic sideband is not. A harmonic \emph{series} with a harmonic \emph{ratio}, such as $1:2$, includes only harmonic sidebands and has the carrier frequency as the fundamental pitch, while an inharmonic series with an inharmonic ratio, e.g. $2:5$, includes one or more inharmonic sidebands. To do so, the $C:M$ ratio first has to be converted to \emph{Normal Form}. In Normal Form, "$M$ must be greater or equal to twice $C$ or else be the ratio $1:1$". To \emph{normalize} a ratio that is not in Normal Form, the operation $C_{new} = | C - M |$ is performed until the Normal Form criterion is met. For example, to normalize a ratio of $5:2$: $5 - 2 = 3 \rightarrow 3 - 2 = 1 \Rightarrow 1:2$. Once a ratio has been brought into Normal Form, the rule to determine if a ratio will result in a harmonic series is the following: "harmonic [Normal Form] ratios are always of the form 1:N, and inharmonic ones [are not]". Therefore, normalized ratios like
+$1:2, 1:5, 1:10$ are inharmonic, while examples for inharmonic ratios are $2:9, 3:8 \text{ or } 4:9$.
+(\url{http://www.sfu.ca/~truax/fmtut.html}, accessed 30 December 2014)
+
+\subsection{The Index of Modulation}
+
+Theoretically, Frequency Modulation Synthesis produces an infinite number of sidebands. However, sidebands reach inaudible levels very quickly, making the series practically finite. In general, the amplitude of individual sidebands depends on the "index of modulation" and the Bessel Function values that result from it.
+
+\noindent A definition for the modulation index $\beta$ is given in Equation \ref{eq:beta}. It shows that
+
+\begin{equation}
+  \beta = \frac{\Delta f_{c}}{f_{m}} = \frac{A_{m}}{f_{m}}
+\end{equation}
+
+\chapter{Recording Sound}
+
+\chapter{MIDI}
+
+\chapter{Sound Output}
 
 \begin{appendices}
 
@@ -1773,7 +1872,7 @@ Phil Burk, Larry Polansky, Douglas Repetto, Mary Roberts and Dan Rockmore
 
 Accessed: 22 December 2014.
 
-\bibitem{sosfm}
+\bibitem{sosfm1}
 
 Gordon Reid,
 
@@ -1781,7 +1880,25 @@ Gordon Reid,
 
 \url{http://www.soundonsound.com/sos/apr00/articles/synthsecrets.htm}
 
-Accessed: 8 October 2014.
+Accessed: 30 December 2014.
+
+\bibitem{sosfm2}
+
+Gordon Reid,
+
+\emph{Synth Secrets, Part 13: More On Frequency Modulation}.
+
+\url{http://www.soundonsound.com/sos/may00/articles/synth.htm}
+
+Accessed: 30 December 2014.
+
+\bibitem{sfufm}
+
+\emph{Tutorial for Frequency Modulation Synthesis}
+
+\url{http://www.sfu.ca/~truax/fmtut.html}
+
+Accessed: 30 December 2014.
 
 \bibitem{samplerates}
 
