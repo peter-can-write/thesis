@@ -1947,6 +1947,40 @@ The following list dicusses the individual chunks of a WAVE file in detail.
 
 The \texttt{Wavefile} class implements a means to store sample data to a WAVE file. All the various chunks are stored in a simple \texttt{struct} and pre-initialized if possible (e.g. the Chunk IDs). Samples can be written to an internal buffer and when the user wishes to write the recorded samples to a file, the relevant data members of the WAVE header are updated and written to disk together with the raw sample data. Listings \ref{code:wavehpp} and \ref{code:wavecpp} shows the full definition and implementation of the \texttt{Wavefile} class.
 
+\section{Direct Output}
+
+The second method of making sound audible is to send it to the sound card or digital-to-analog-converter (DAC). To do so, one has to interface with the Operating System's sound processing capabilities. The difficulty here is that each Operating System (OS) has its own sound API (Application Program Interface). Moreover, there may be different APIs for a single OS, as shown in Table \ref{tb:dac}. The pragmatic, cross-platform-oriented programmer does not interface with each of these APIs him- or herself, but makes use of one of the many well-documented and well-implemented Open-Source libraries, such as the RtAudio\footnote{Found at: \url{http://www.music.mcgill.ca/~gary/rtaudio/index.html}} library. This library eases the implementation of direct sound output in a digital synthesizer by adjusting to one of the many sound APIs, as needed. All the programmer needs to do is implement a simple call-back function, which the RtAudio library calls whenever the OS and the sound API request new audio data.
+
+\begin{table}[h!]
+
+  \begin{tabular}{c|c|c|c|}
+    \cline{2-4}
+    & Windows & OS X & Linux \\
+    \hline
+    \multicolumn{1}{|c|}{ALSA} & No & No & Yes \\
+    \hline
+    \multicolumn{1}{|c|}{OSS} & No & No & Yes \\
+    \hline
+    \multicolumn{1}{|c|}{PulseAudio} & No & No & Yes \\
+    \hline
+    \multicolumn{1}{|c|}{Jack} & No & Yes & Yes \\
+    \hline
+    \multicolumn{1}{|c|}{CoreAudio} & No & Yes & No \\
+    \hline
+    \multicolumn{1}{|c|}{DirectSound} & Yes & No & No \\
+    \hline
+    \multicolumn{1}{|c|}{ASIO} & Yes & No & No \\
+    \hline
+    \multicolumn{1}{|c|}{WASAPI} & Yes & No & No \\
+    \hline
+  \end{tabular}
+
+  \caption{Sound APIs and what Operating Systems they are available for.}
+
+  \label{tb:dac}
+
+\end{table}
+
 \chapter{MIDI}
 
 \begin{appendices}
