@@ -1,0 +1,81 @@
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
+\BOOKMARK [0][-]{chapter.2}{From Analog to Digital}{}% 2
+\BOOKMARK [1][-]{section.2.1}{Sample Rate}{chapter.2}% 3
+\BOOKMARK [1][-]{section.2.2}{Nyquist Limit}{chapter.2}% 4
+\BOOKMARK [1][-]{section.2.3}{Aliasing}{chapter.2}% 5
+\BOOKMARK [1][-]{section.2.4}{Overflow}{chapter.2}% 6
+\BOOKMARK [0][-]{chapter.3}{Generating Sound}{}% 7
+\BOOKMARK [1][-]{section.3.1}{Simple Waveforms}{chapter.3}% 8
+\BOOKMARK [1][-]{section.3.2}{Complex Waveforms}{chapter.3}% 9
+\BOOKMARK [2][-]{subsection.3.2.1}{Mathematical Calculation of Complex Waveforms}{section.3.2}% 10
+\BOOKMARK [2][-]{subsection.3.2.2}{Additive Synthesis}{section.3.2}% 11
+\BOOKMARK [2][-]{subsection.3.2.3}{Smooth Waveforms}{section.3.2}% 12
+\BOOKMARK [2][-]{subsection.3.2.4}{Sine Waves with Different Bit Widths}{section.3.2}% 13
+\BOOKMARK [1][-]{section.3.3}{The Gibbs Phenomenon and the Lanczos Sigma Factor}{chapter.3}% 14
+\BOOKMARK [1][-]{section.3.4}{Wavetables}{chapter.3}% 15
+\BOOKMARK [2][-]{subsection.3.4.1}{Implementation}{section.3.4}% 16
+\BOOKMARK [2][-]{subsection.3.4.2}{Interpolation}{section.3.4}% 17
+\BOOKMARK [2][-]{subsection.3.4.3}{Table Length}{section.3.4}% 18
+\BOOKMARK [2][-]{subsection.3.4.4}{File Format}{section.3.4}% 19
+\BOOKMARK [1][-]{section.3.5}{Noise}{chapter.3}% 20
+\BOOKMARK [2][-]{subsection.3.5.1}{Colors of Noise}{section.3.5}% 21
+\BOOKMARK [0][-]{chapter.4}{Modulating Sound}{}% 22
+\BOOKMARK [1][-]{section.4.1}{Envelopes}{chapter.4}% 23
+\BOOKMARK [2][-]{subsection.4.1.1}{Envelope segments}{section.4.1}% 24
+\BOOKMARK [2][-]{subsection.4.1.2}{Full Envelopes}{section.4.1}% 25
+\BOOKMARK [1][-]{section.4.2}{Low Frequency Oscillators}{chapter.4}% 26
+\BOOKMARK [2][-]{subsection.4.2.1}{LFO Sequences}{section.4.2}% 27
+\BOOKMARK [1][-]{section.4.3}{The ModDock system}{chapter.4}% 28
+\BOOKMARK [2][-]{subsection.4.3.1}{Problem statement}{section.4.3}% 29
+\BOOKMARK [2][-]{subsection.4.3.2}{Implementation}{section.4.3}% 30
+\BOOKMARK [0][-]{chapter.5}{Crossfading Sound}{}% 31
+\BOOKMARK [1][-]{section.5.1}{Linear Crossfading}{chapter.5}% 32
+\BOOKMARK [1][-]{section.5.2}{Crossfading with the sin function}{chapter.5}% 33
+\BOOKMARK [1][-]{section.5.3}{Radical Crossfading}{chapter.5}% 34
+\BOOKMARK [1][-]{section.5.4}{Scaling Crossfade values}{chapter.5}% 35
+\BOOKMARK [1][-]{section.5.5}{Creating Crossfade Tables}{chapter.5}% 36
+\BOOKMARK [0][-]{chapter.6}{Filtering Sound}{}% 37
+\BOOKMARK [1][-]{section.6.1}{FIR and IIR Filters}{chapter.6}% 38
+\BOOKMARK [1][-]{section.6.2}{Bi-Quad Filters}{chapter.6}% 39
+\BOOKMARK [2][-]{subsection.6.2.1}{Implementation}{section.6.2}% 40
+\BOOKMARK [1][-]{section.6.3}{Filter Types}{chapter.6}% 41
+\BOOKMARK [2][-]{subsection.6.3.1}{Low-Pass Filters}{section.6.3}% 42
+\BOOKMARK [2][-]{subsection.6.3.2}{High-Pass Filters}{section.6.3}% 43
+\BOOKMARK [2][-]{subsection.6.3.3}{Band-Pass Filters}{section.6.3}% 44
+\BOOKMARK [2][-]{subsection.6.3.4}{Band-Reject Filters}{section.6.3}% 45
+\BOOKMARK [2][-]{subsection.6.3.5}{All-Pass Filters}{section.6.3}% 46
+\BOOKMARK [1][-]{section.6.4}{Filter Coefficients}{chapter.6}% 47
+\BOOKMARK [0][-]{chapter.7}{Effects}{}% 48
+\BOOKMARK [1][-]{section.7.1}{Delay Lines and the Delay Effect}{chapter.7}% 49
+\BOOKMARK [2][-]{subsection.7.1.1}{Simple Delay Lines}{section.7.1}% 50
+\BOOKMARK [2][-]{subsection.7.1.2}{Flexible Delay Lines}{section.7.1}% 51
+\BOOKMARK [2][-]{subsection.7.1.3}{Interpolation}{section.7.1}% 52
+\BOOKMARK [2][-]{subsection.7.1.4}{Feedback and Decay}{section.7.1}% 53
+\BOOKMARK [2][-]{subsection.7.1.5}{Dry/Wet Control}{section.7.1}% 54
+\BOOKMARK [2][-]{subsection.7.1.6}{Implementation}{section.7.1}% 55
+\BOOKMARK [1][-]{section.7.2}{Echo}{chapter.7}% 56
+\BOOKMARK [1][-]{section.7.3}{Flanger}{chapter.7}% 57
+\BOOKMARK [1][-]{section.7.4}{Reverb}{chapter.7}% 58
+\BOOKMARK [2][-]{subsection.7.4.1}{Schroeder Reverb}{section.7.4}% 59
+\BOOKMARK [2][-]{subsection.7.4.2}{Implementation}{section.7.4}% 60
+\BOOKMARK [0][-]{chapter.8}{Synthesizing Sound}{}% 61
+\BOOKMARK [1][-]{section.8.1}{Additive Synthesis}{chapter.8}% 62
+\BOOKMARK [1][-]{section.8.2}{Subtractive Synthesis}{chapter.8}% 63
+\BOOKMARK [1][-]{section.8.3}{Granular Synthesis}{chapter.8}% 64
+\BOOKMARK [1][-]{section.8.4}{Amplitude Modulation Synthesis}{chapter.8}% 65
+\BOOKMARK [1][-]{section.8.5}{Frequency Modulation Synthesis}{chapter.8}% 66
+\BOOKMARK [2][-]{subsection.8.5.1}{Phase Modulation}{section.8.5}% 67
+\BOOKMARK [2][-]{subsection.8.5.2}{Sidebands}{section.8.5}% 68
+\BOOKMARK [2][-]{subsection.8.5.3}{C:M Ratio}{section.8.5}% 69
+\BOOKMARK [2][-]{subsection.8.5.4}{Index of Modulation}{section.8.5}% 70
+\BOOKMARK [2][-]{subsection.8.5.5}{Bandwidth}{section.8.5}% 71
+\BOOKMARK [2][-]{subsection.8.5.6}{Algorithms and Operators}{section.8.5}% 72
+\BOOKMARK [2][-]{subsection.8.5.7}{Implementation}{section.8.5}% 73
+\BOOKMARK [0][-]{chapter.9}{Making Sound Audible}{}% 74
+\BOOKMARK [1][-]{section.9.1}{Recording Sound}{chapter.9}% 75
+\BOOKMARK [2][-]{subsection.9.1.1}{WAVE files}{section.9.1}% 76
+\BOOKMARK [1][-]{section.9.2}{Direct Output}{chapter.9}% 77
+\BOOKMARK [0][-]{chapter.10}{MIDI}{}% 78
+\BOOKMARK [0][-]{chapter.11}{Conclusion}{}% 79
+\BOOKMARK [0][-]{section*.129}{Appendices}{}% 80
+\BOOKMARK [0][-]{Appendix.a.A}{Code Listings}{}% 81

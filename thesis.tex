@@ -2,6 +2,8 @@
 
 \documentclass[12pt,twoside]{report}
 
+\usepackage[american]{babel}
+
 \usepackage{listings}
 
 \usepackage{color}
@@ -33,6 +35,10 @@
 \usepackage[toc,page]{appendix}
 
 \usepackage{colortbl}
+
+\usepackage{hyperref}
+
+\usepackage{lipsum}
 
 \setlength{\headheight}{15pt}
 
@@ -84,26 +90,54 @@ morecomment=[l][\color{red}]{\#}
 
 \newfloatcommand{capbtabbox}{table}[][\FBwidth]
 
+\newenvironment{blockquote}{%
+\par%
+\medskip
+\leftskip=2em\rightskip=2em%
+\noindent\ignorespaces}{%
+\par\medskip}
+
 \title{Developing a Digital Synthesizer in C++}
 
 \author{
-Peter Goldsborough\\
-\texttt{petergoldsborough@hotmail.com}
+Peter Goldsborough \\
+\href{mailto:petergoldsborough@hotmail.com}{petergoldsborough@hotmail.com}\\
+8A\\\\
+Supervised by Prof. Martin Kastner\\\\
+BG | BRG St.Martin\\
+St.Martiner Stra{\ss}e 7\\
+A-9500 Villach
 }
 
 \date{\today}
 
 \maketitle
 
+\begin{abstract}
+  I like KFC
+\end{abstract}
+
+\chapter*{Acknowledgements}
+
+I want to thank Professor Martin Kastner for supervising this thesis. His advice on how to structure and plan this thesis were very insightful, and I felt like I had his full confidence throughout my final year.\\
+
+\noindent I would also like to express my gratitude towards John Cooper, who helped me and gave me critical pieces of advice at critical times, about digital signal processing, about programming and about writing this thesis. Thank you for being such a nice contact.\\
+
+\noindent Also special thanks to Jari Kleimola, whose efforts to help out a random stranger from the internet I greatly appreciate. You are an excellent example of how the internet has made the world a smaller and friendlier place. \\
+
+\noindent Lastly, I want to use this opportunity to greet Leonore. Hello. \\
+
+\noindent Villach, \today \\
+
+\noindent Peter Goldsborough
+
 \tableofcontents
 
-\chapter{Sound in the Digital Realm}
+\chapter{Introduction}
 
-\section{What is a Music Synthesizer?}
+\lipsum[1]
 
-
-
-\section{From Analog to Digital}
+\chapter{From Analog to Digital}
 
 Our everyday experience of sound is an entirely analog one. When a physical     object emits or reflects a sound wave into space and towards our ears, the signal produced consists of an infinite set of values, spaced apart in infinitesimal intervals. Due to the fact that such a signal has an amplitude value at every single point in time, it is called a continuous signal. \citedsp{11} Figure \ref{fig:cont} displays the continuous representation of a sine wave.
 
@@ -1879,7 +1913,13 @@ To record and store a sound for later playback, it must be written to a file. Fo
 
 \subsection{WAVE files}
 
-\noindent WAVE files are part of the family of Resource Interchange File Format (RIFF) specifications, developed by Microsoft. (Wilson, 2003) "The RIFF specification defines the file as a set of nested 'chunks' of data. Each chunk begins with an 8-byte chunk header. The chunk header identifies the chunk type with a 4-character ID followed by the chunk size as a 4-byte binary value". \citebs{33} The first of these chunks is the top-level RIFF chunk, which contains basic information about the type of the RIFF file, e.g. the WAVE specification. Then follow two sub-chunks, the Format Chunk and the Data Chunk. The first is for information concerning the file and file data's format, such as the sample rate, the number of bytes used per sample or the number of channels. The second stores the sample data and its overall size. Figure \ref{fig:wave} displays the structure of a WAVE file.
+\noindent WAVE files are part of the family of Resource Interchange File Format (RIFF) specifications, developed by Microsoft. (Wilson, 2003)
+
+\begin{blockquote}
+\emph{The RIFF specification defines the file as a set of nested 'chunks' of data. Each chunk begins with an 8-byte chunk header. The chunk header identifies the chunk type with a 4-character ID followed by the chunk size as a 4-byte binary value.} \citebs{33}
+\end{blockquote}
+
+\noindent The first of these chunks is the top-level RIFF chunk, which contains basic information about the type of the RIFF file, e.g. the WAVE specification. Then follow two sub-chunks, the Format Chunk and the Data Chunk. The first is for information concerning the file and file data's format, such as the sample rate, the number of bytes used per sample or the number of channels. The second stores the sample data and its overall size. Figure \ref{fig:wave} displays the structure of a WAVE file.
 
 \begin{figure}[p!]
   \includegraphics[scale=0.7]{img/wave}
@@ -2020,6 +2060,8 @@ While the previous chapter discussed how to output from a synthesizer, this chap
 \subsubsection{Implementation}
 
 The implementation of MIDI communication is found in the \texttt{MIDI} class, which makes use of the Open-Source RtMidi library\footnote{Found at: \url{http://www.music.mcgill.ca/~gary/rtmidi/index.html}}. Similar to how direct audio output was implemented, also the \texttt{MIDI} class has a call-back method, which is invoked whenever the RtMidi library detects a new MIDI message. Messages are then interpreted and Operators' frequencies updated accordingly.
+
+\chapter{Conclusion}
 
 \begin{appendices}
 
@@ -2190,5 +2232,15 @@ Accessed: 2 January 2015.
 \end{thebibliography}
 
 \listoffigures
+
+\chapter*{Declaration Of Authorship}
+
+I, Peter Goldsborough, declare that this thesis and the work presented in it are my own and has been generated by me as the result of my own original research. I confirm that all sources I consulted are listed in the bibliography. \\
+
+\noindent Villach, \today, \\ \\
+
+\noindent \includegraphics[scale=0.18]{img/signature} \\
+
+Peter Goldsborough
 
 \end{document}
