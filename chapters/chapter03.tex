@@ -1,0 +1,656 @@
+\chapter{Generating Sound}
+
+The following sections will outline how digital sound can be generated in theory and implemented in practice, using the C++ programming language.
+
+\section{Simple Waveforms}
+
+The simplest possible waveform is the sine wave. As a function of time, it can be mathematically represented by Equation \ref{eq:sine}, where $A$ is the maximum amplitude of the signal, $f$ the frequency in Hertz and $\phi$ an initial phase offset in radians:
+
+\begin{equation}
+  f_{s}(t) = A \sin(2 \pi  f t + \phi)
+  \label{eq:sine}
+\end{equation}
+
+A computer program to compute the values of a sine wave with a variable duration, implemented in C++, is shown in Listing \ref{code:sine}. Another waveform similar to the sine wave is the cosine wave, which differs only in a phase offset of 90\degree or $\frac{\pi}{2}$ radians:\\
+\begin{equation}
+  f_{c}(t) = A \cos(2 \pi  f t + \phi) = A \sin(2 \pi f t + \phi + \frac{\pi}{2})
+  \label{eq:cosine}
+  \end{equation}\\
+  Therefore, the program from Listing \ref{code:sine} could be modified to compute a cosine wave by changing line 22 from:\\
+
+  \begin{lstlisting}[firstnumber=22]
+    double phase = 0;
+  \end{lstlisting}
+  to
+  \begin{lstlisting}[firstnumber=22]
+    double phase = pi/2.0;
+  \end{lstlisting}
+
+  \section{Complex Waveforms}
+
+  Now that the process of creating simple sine and cosine waves has been discussed, the generation of more complex waveforms can be examined. Generally, there are two methods by which complex waveforms can be created in a digital synthesis system: mathematical calculation or additive synthesis.
+
+  \subsection{Mathematical Calculation of Complex Waveforms}
+
+  In the first case --- mathematical calculation, waveforms are computed according to certain mathematical formulae and thus yield \emph{perfect} or \emph{exact} waveforms, such as a square wave that is equal to the maximum amplitude exactly one half of a period and equal to the minimum amplitude for the rest of the period. While these waveforms produce a very crisp and clear sound, they are rarely found in nature due to their degree of perfection and are consequently rather undesirable for a music synthesizer. Nevertheless, they are considerably useful for modulating other signals, as tiny acoustical imperfections such as those found in additively synthesized waveforms can result in unwanted distortion which is not encountered when using mathematically calculated waveforms. Therefore, exact waveforms are the best choice for modulation sources such as Low Frequency Oscillators (LFOs), which are discussed in later chapters. \citebs{71}\\\\
+  The following paragraphs will analyze how four of the most common waveforms found in digital synthesizers, the square, the sawtooth, the ramp and the triangle wave, can be generated via mathematical calculation.\\\\
+  \emph{Note: There have found to be disparities in literature over which waveform is a sawtooth and which a ramp wave. This thesis will consider a sawtooth wave as descending from maximum to minimum amplitude with time and a ramp wave as ascending from minimum to maximum amplitude with time.}
+
+  \subsubsection{Square Waves}
+
+  Ideally, a square wave is equal to its maximum amplitude for exactly one half of a period and equal to its minimum amplitude for the other half of the same period. A single period of a square wave can be calculated as shown in Equation \ref{eq:dsquare1}, where the independent variable $t$ as well as the period $T$ can be either in samples or in seconds. A mathematical Equation for a full, periodic square wave function is given by Equation \ref{eq:dsquare2}, where $t$ is time in seconds and the frequency $f$ in Hertz. An equivalent C++ computer program is shown in Table \ref{code:dsquare}.
+
+  \begin{multicols}{2}
+
+    \begin{equation}
+      f(t) =
+      \begin{cases}
+        1,& \text{if } 0 \leq t < \frac{T}{2}\\
+        -1,& \text{if } \frac{T}{2} \leq t < T
+      \end{cases}
+      \label{eq:dsquare1}
+    \end{equation}
+
+    \begin{equation}
+      f(t) =
+      \begin{cases}
+        1,& \text{if } \sin(2 \pi f t) > 0\\
+        -1,& \text{otherwise}
+      \end{cases}
+      \label{eq:dsquare2}
+    \end{equation}
+
+  \end{multicols}
+
+  \begin{table}
+    \sidecap{C++ code to generate and return one period of a square wave, where \texttt{period} is the period duration in samples. Note that this function increments in sample time, measured in seconds, rather than actual samples. This prevents a one-sample quantization error at the mid-point, since time can always be halved whereas a sample is a fixed entity and cannot be broken down any further.}{code:dsquare}{\code{dsquare.cpp}}
+  \end{table}
+
+  \subsubsection{Sawtooth Waves}
+
+  An ideal sawtooth wave descends from its maximum amplitude to its minimum amplitude linearly before jumping back to the maximum amplitude at the beginning of the next period. A mathematical Equation for a single period of such a sawtooth wave function, calculated directly from the phase, is given by Equation \ref{eq:dsaw1} \citebs{68}. Alternatively, the function can depend on time or on samples, as shown by Equation \ref{eq:dsaw2}, where $T$ is the period. A computer program to compute one period of a sawtooth wave is given in Table \ref{code:dsaw}.
+
+  \begin{multicols}{2}
+
+    \begin{equation}
+      f(\phi) =
+      \begin{cases}
+        -\frac{\phi}{\pi} + 1,& \text{if } 0 \leq \phi < 2 \pi
+      \end{cases}
+      \label{eq:dsaw1}
+    \end{equation}
+
+    \begin{equation}
+      f(t) =
+      \begin{cases}
+        -\frac{2t}{T} + 1,& \text{if } 0 \leq t < 1
+      \end{cases}
+      \label{eq:dsaw2}
+    \end{equation}
+
+  \end{multicols}
+
+  \begin{table}
+    \sidecap{C++ code to generate one period of a sawtooth wave function, where \texttt{period} is the period duration in samples.}{code:dsaw}{\code{dsaw.cpp}}
+  \end{table}
+
+  \subsubsection{Ramp Waves}
+
+  A ramp wave is, quite simply, an inverted sawtooth wave. It ascends from its minimum amplitude to its maximum amplitude linearly, after which it jumps back down to the minimum amplitude. Consequently, Equation  \ref{eq:dramp1} and \ref{eq:dramp2} differ from sawtooth Equation  \ref{eq:dsaw1} and \ref{eq:dsaw2} only in their sign and offset. The equivalent C++ implementation shown in Table \ref{code:dramp} also reflects these differences.
+
+  \begin{multicols}{2}
+
+    \begin{equation}
+      f(\phi) =
+      \begin{cases}
+        \frac{\phi}{\pi} - 1,& \text{if } 0 \leq \phi < 2 \pi
+      \end{cases}
+      \label{eq:dramp1}
+    \end{equation}
+
+    \begin{equation}
+      f(t) =
+      \begin{cases}
+        \frac{2t}{T} - 1,& \text{if } 0 \leq t < 1
+      \end{cases}
+      \label{eq:dramp2}
+    \end{equation}
+
+  \end{multicols}
+
+  \begin{table}
+    \sidecap{C++ ramp wave generator. This code differs from the program shown in Table \ref{code:dsaw} solely in the amplitude offset (-1 instead of 1) and the increment, which is now positive. }{code:dramp}{\code{dramp.cpp}}
+  \end{table}
+
+  \pagebreak
+
+  \subsubsection{Triangle waves}
+
+  A triangle wave can be seen as a combination of a ramp wave and a sawtooth wave, or as a linear, "edgy", sine wave. It increments from its minimum amplitude to its maximum amplitude linearly one half of a period and decrements back to the minimum during the other half. Simply put, "[a] triangle wave is a linear increment or decrement that switches direction every $\pi$ radians" \citebs{69}. A mathematical definition for one period of a triangle wave is given by Equation  \ref{eq:dtri1}, where $\phi$ is the phase in radians. If $\phi$ is kept in the range of $[-\pi;\pi]$ rather than the usual range of $[0;2 \pi]$, the subtraction of $\pi$ can be eliminated, yielding Equation  \ref{eq:dtri2}. If the dependent variable is time, in seconds, or samples, Equation  \ref{eq:dtri3} can be used for a range of $[0;T]$, where $T$ is the period, and Equation  \ref{eq:dtri4} for a range of $[-\frac{T}{2};\frac{T}{2}]$. A C++ implementation is shown in Table \ref{code:dtri}.
+
+  \begin{multicols}{2}
+
+    \begin{equation}
+      f(\phi) =
+      \begin{cases}
+        1 - \frac{2 |\phi - \pi|}{\pi},& \text{if } 0 \leq \phi < 2 \pi
+      \end{cases}
+      \label{eq:dtri1}
+    \end{equation}
+
+    \begin{equation}
+      f(\phi) =
+      \begin{cases}
+        1 - \frac{2 |\phi|}{\pi},& \text{if } -\pi \leq \phi < \pi
+      \end{cases}
+      \label{eq:dtri2}
+    \end{equation}
+
+  \end{multicols}
+
+  \begin{multicols}{2}
+
+    \begin{equation}
+      f(t) =
+      \begin{cases}
+        1 - \frac{4 |t - \frac{T}{2}|}{T},& \text{if } 0 \leq t < 1
+      \end{cases}
+      \label{eq:dtri3}
+    \end{equation}
+
+    \begin{equation}
+      f(t) =
+      \begin{cases}
+        1 - \frac{4 |t|}{T},& \text{if } -\frac{T}{2} \leq t < \frac{T}{2}
+      \end{cases}
+      \label{eq:dtri4}
+    \end{equation}
+
+  \end{multicols}
+
+  \begin{table}
+    \sidecap{C++ program to compute one period of a triangle wave.}{code:dtri}{\code{dtri.cpp}}
+  \end{table}
+
+  \subsection{Additive Synthesis}
+
+  The second method of generating complex waveforms, additive synthesis, produces waveforms that, despite not being mathematically perfect, are closer to the waveforms found naturally. This method involves the summation of a theoretically infinite, practically finite set of sine and/or cosine waves with varying parameters and is often called Fourier Synthesis, after the 18th century French scientist, Joseph Fourier, who first described the process and associated phenomena of summing sine and cosine waves to produce complex waveforms. This calculation of a complex, periodic waveform from a sum of sine and cosine functions is also called a Fourier Transform or a Fourier Series, both part of the Fourier Theorem. In a Fourier Series, a single sine/cosine component is either called a harmonic, an overtone or a partial. All three name the same idea of a waveform with a frequency that is an \emph{integer multiple} of some fundamental pitch or frequency. \citebs{64} Throughout this thesis the term \emph{partial} will be preferred. \\\\Equation 2.13 gives the general definition of a discrete Fourier Transform. Equation 2.14 shows a simplified version of Equation 2.13. Table \ref{code:partial} presents a C++ struct to represent a single partial and Listing \ref{code:add} a piece of C++ code to compute one period of any Fourier Series.
+
+  \begin{figure}[h!]
+    $f(t) = \frac{a_{0}}{2} + \sum\limits_{n=1}^\infty (a_{n} \cos(\omega n t) = b_{n} \sin(\omega n t))$
+    \caption*{\textbf{Equation 2.13: }Formula to calculate an infinite Fourier series, where $\frac{a_{n}}{2}$ is the center amplitude, $a_{n}$ and $b_{n}$ the partial amplitudes and $\omega$ the angular frequency, which is equal to $2 \pi f$.}
+    \label{fig:fourier1}
+  \end{figure}
+
+  \begin{figure}[h!]
+    $f(t) = \sum\limits_{n=1}^N a_{n} \sin(\omega n t + \phi_{n})$
+    \caption*{\textbf{Equation 2.14:} Simplificiation of Equation 2.13. Note the change from a computationally impossible infinite series to a more practical finite series. Because a cosine wave is a sine wave shifted by 90\degree or $\frac{\pi}{2}$ radians, the $\cos$ function can be eliminated and replaced by an appropiate $\sin$ function with a phase shift $\phi_{n}$.}
+    \label{fig:fourier2}
+  \end{figure}
+
+  \begin{table}
+    \sidecap{C++ code to represent a single partial in a Fourier Series.}{code:partial} {\code{partial.cpp}}
+  \end{table}
+
+  \noindent The following paragraphs will examine how the four waveforms presented in Section 2.2.1, the square, the sawtooth, the ramp and the triangle wave, can be synthesized additively.
+
+  \subsubsection{Square Waves}
+
+  When speaking of additive synthesis, a square wave is the result of summing all odd-numbered partials (3rd, 5th, 7th etc.) at a respective amplitude equal to the reciprocal of their partial number ($\frac{1}{3}$, $\frac{1}{5}$, $\frac{1}{7}$ etc.). The amplitude of each partial must decrease with increasing partial numbers to prevent amplitude overflow. A mathematical equation for such a square wave with $N$ partials is given by Equation \ref{eq:asquare}, where $2n - 1$ makes the series use only odd partials. A good maximum number of partials $N$ for near-perfect but still naturally sounding waveforms is 64, a value determined empirically. Higher numbers have not been found to produce significant improvements in sound quality. Table \ref{code:asquare} displays the C++ code needed to produce one period of a square wave in conjuction with the \texttt{additive} function from Tables \ref{code:add1} and \ref{code:add2}. Figure \ref{fig:square} shows the result of summing 2, 4, 8, 16, 32 and finally 64 partials.
+
+  \begin{equation}
+    f(t) = \sum\limits_{n=1}^N \frac{1}{2n -1} \sin(\omega (2n - 1) t)
+    \label{eq:asquare}
+  \end{equation}
+
+  \begin{figure}
+
+    \TopFloatBoxes
+
+    \begin{floatrow}
+
+      \ffigbox{\caption{Square waves with 2, 4, 8, 16,\\ 32 and 64 partials.} \label{fig:square}}{ \includegraphics[scale=0.12]{img/square}}
+
+      \ttabbox{\caption{C++ code for a square wave with 64 partials.} \label{code:asquare}}{\code{asquare.cpp}}
+
+    \end{floatrow}
+
+  \end{figure}
+
+  \pagebreak
+
+  \subsubsection{Sawtooth Waves}
+
+  A sawtooth wave is slightly simpler to create through additive synthesis, as it requires the summation of every partial rather than only the odd-numbered ones. The respective amplitude is again the reciprocal of the partial number. Equation \ref{eq:asaw} gives a mathematical definition for a sawtooth wave, Figure \ref{fig:saw} displays sawtooth functions with various partial numbers and Table \ref{code:asaw} shows C++ code to generate such functions.
+
+  \begin{equation}
+    f(t) = \sum\limits_{n=1}^N \frac{1}{n} \sin(\omega n t)
+    \label{eq:asaw}
+  \end{equation}
+
+  \begin{figure}[h!]
+
+    \TopFloatBoxes
+
+    \begin{floatrow}
+
+      \ffigbox{\caption{Sawtooth waves with 2, 4, 8,\\ 16, 32 and 64 partials.} \label{fig:saw}}{ \includegraphics[scale=0.12]{img/saw}}
+
+      \ttabbox{\caption{C++ code for a sawtooth wave with 64 partials.} \label{code:asaw}}{\code{asaw.cpp}}
+
+    \end{floatrow}
+
+  \end{figure}
+
+  \pagebreak
+
+  \subsubsection{Ramp Waves}
+
+  Ramp waves are essentially the inverse of sawtooth waves. Therefore, we can simply sum sinusoids as we did for a sawtooth function but change the sign of each partial's amplitude to negative instead of positive. Equation \ref{eq:aramp} gives the mathematical definition, Figure \ref{fig:ramp} displays a set of ramp waveforms with different partial numbers and Table \ref{code:aramp} again shows the accompanying C++ code.
+
+  \begin{equation}
+    f(t) = \sum\limits_{n=1}^N -\frac{1}{n} \sin(\omega n t)
+    \label{eq:aramp}
+  \end{equation}
+
+  \begin{figure}[h!]
+
+    \TopFloatBoxes
+
+    \begin{floatrow}
+
+      \ffigbox{\caption{Ramp waves with 2, 4, 8, 16,\\ 32 and 64 partials.} \label{fig:ramp}}{ \includegraphics[scale=0.12]{img/ramp}}
+
+      \ttabbox{\caption{C++ code for a ramp wave with 64 partials.} \label{code:aramp}}{\code{aramp.cpp}}
+
+    \end{floatrow}
+
+  \end{figure}
+
+  \subsubsection{Triangle Waves}
+
+  The process of generating triangle waves additively differs from previous waveforms. The amplitude of each partial is no longer the reciprocal of the partial number, $\frac{1}{n}$, but now the inverse of the partial number squared: $\frac{1}{n^2}$. Moreover, the sign of the amplitude alternates for each partial in the series. As for square waves, only odd-numbered partials are used. Mathematically, such a triangle wave is defined as shown in Equation \ref{eq:atri1} or, more concisely, in Equation \ref{eq:atri2}. Figure \ref{fig:tri} displays such a triangle wave with various partial numbers (2,4,8,16,32 and 64) and Table \ref{code:atri} implements C++ code to compute a triangle wave.
+
+  \begin{equation}
+    f(t) = \sum\limits_{n=1}^\frac{N}{2} \frac{1}{(4n-3)^2}\sin(\omega (4n-3) t) - \frac{1}{(4n-1)^2}\sin(\omega (4n-1) t)
+    \label{eq:atri1}
+  \end{equation}
+
+  \begin{equation}
+    f(t) = \sum\limits_{n=0}^N \frac{(-1)^n}{(2n+1)^2} \sin(\omega (2n + 1) t)
+    \label{eq:atri2}
+  \end{equation}
+
+  \begin{figure}
+
+    \TopFloatBoxes
+
+    \begin{floatrow}
+
+      \ffigbox{\caption{Triangle waves with 2, 4, 8, 16,\\ 32 and 64 partials. Note that already 2 partials\\ produce a very good approximation of a\\ triangle wave.} \label{fig:tri}}{ \includegraphics[scale=0.12]{img/tri}}
+
+      \killfloatstyle
+
+      \ttabbox{\code{atri.cpp}}{\caption{C++ code for a triangle wave\\ with 64 partials.} \label{code:atri}}
+
+    \end{floatrow}
+
+  \end{figure}
+
+  \subsection{Smooth Waveforms}
+
+  One noticeable problem with square, sawtooth and ramp waves is that they have very sharp transitions at certain points in their waveforms, such as the square wave at the midpoint, $\frac{T}{2}$, where the amplitude jumps from its maximum to its minimum. While these transitions and jumps in amplitude contribute to the characteristic sound of these waves when used for music, they can pose a problem when they are used for modulation, as sharp transitions in amplitude translate to clicking sounds acoustically. One possible solution to reduce the impact of such transitions would be to overlay an audio envelope directly on the waveform, to bend or smooth the amplitude at the transition points. However, a more effective and direct solution would be to mathematically calculate a waveform that is already smoothed out at these critical points. The following two paragraphs propose a set of empirically determined functions to calculate "smooth" square and sawtooth waves.
+
+  \subsubsection{Smooth Square Waves}
+
+  Smooth square waves can be calculated mathematically as a set of four power functions with a very large exponent that change their sign after the midpoint. The exponent chosen, 50, was determined entirely experimentally. Equations \ref{eq:ssquareA} to \ref{eq:ssquareD} display the four power functions and their respective range of definition. Figure \ref{fig:ssquare} shows the resulting visualization, where each individual power function is highlighted in a different colour as a visual aid.
+
+  \begin{equation}
+    a(t) =
+    \begin{cases}
+      (t - 1)^{50} - 1,& \text{if } 0 \leq t < \frac{T}{4}
+    \end{cases}
+    \label{eq:ssquareA}
+  \end{equation}
+
+  \begin{equation}
+    b(t) =
+    \begin{cases}
+      (t + 0.5)^{50} - 1,& \text{if } \frac{T}{4} \leq t < \frac{T}{2}
+    \end{cases}
+    \label{eq:ssquareB}
+  \end{equation}
+
+  \begin{equation}
+    c(t) =
+    \begin{cases}
+      -(t - 1.5)^{50} + 1,& \text{if } \frac{T}{2} \leq t < \frac{3T}{4}
+    \end{cases}
+    \label{eq:ssquareC}
+  \end{equation}
+
+  \begin{equation}
+    d(t) =
+    \begin{cases}
+      -t^{50} + 1,& \text{if } \frac{3T}{4} \leq t < T
+    \end{cases}
+    \label{eq:ssquareD}
+  \end{equation}
+
+  \begin{figure}[t!]
+    \includegraphics[scale=0.5]{img/ssquare}
+    \caption{One period of a smooth square wave as the sum of four piecewise power functions.}
+    \label{fig:ssquare}
+  \end{figure}
+
+  \subsubsection{Smooth Sawtooth Waves}
+
+  For sawtooth waves, the only critical area of transition is the point at which one period ends and the next begins, as the amplitude jumps back to the maximum from its minimum value. To make this transition smoother, one can use two very steep quadratic functions, one positive and one negative, that intersect at the midpoint of the transition. If one allocates nine tenths of one period for the normal descent of the sawtooth function from its maximum to its minimum, the transition can take place in the last tenth of the period. Equation \ref{eq:ssawA} shows an altered version of the sawtooth wave function introduced in Section 2.2.1 and Equations \ref{eq:ssawB} and \ref{eq:ssawC} the two aforementioned quadratic functions. Figure \ref{fig:ssaw} visualizes the resulting waveform.
+
+  \begin{equation}
+    a(t) =
+    \begin{cases}
+      \frac{-2t}{0.9T} + 1 = \frac{-20t}{9T} + 1,& \text{if } 0 \leq t < \frac{9T}{10}
+    \end{cases}
+    \label{eq:ssawA}
+  \end{equation}
+
+  \begin{equation}
+    b(t) =
+    \begin{cases}
+      400(t-0.9)^2 - 1,& \text{if } \frac{9T}{10} \leq t < \frac{95T}{100}
+    \end{cases}
+    \label{eq:ssawB}
+  \end{equation}
+
+  \begin{equation}
+    c(t) =
+    \begin{cases}
+      -400(t-1)^2 + 1,& \text{if } \frac{95T}{100} \leq t < T
+    \end{cases}
+    \label{eq:ssawC}
+  \end{equation}
+
+  \subsubsection{Smooth Ramp Waves}
+
+  Smooth ramp waves are created identically to smooth sawtooth waves, except that the sign of all piecewise functions as well as as their offsets change, as shown by Equations \ref{eq:srampA} to \ref{eq:srampC} as well as Figure \ref{fig:sramp}.
+
+  \begin{equation}
+    a(t) =
+    \begin{cases}
+      \frac{2t}{0.9T} - 1 = \frac{-20t}{9T} + 1,& \text{if } 0 \leq t < \frac{9T}{10}
+    \end{cases}
+    \label{eq:srampA}
+  \end{equation}
+
+  \begin{equation}
+    b(t) =
+    \begin{cases}
+      -400(t-0.9)^2 + 1,& \text{if } \frac{9T}{10} \leq t < \frac{95T}{100}
+    \end{cases}
+    \label{eq:srampB}
+  \end{equation}
+
+  \begin{equation}
+    c(t) =
+    \begin{cases}
+      400(t-1)^2 - 1,& \text{if } \frac{95T}{100} \leq t < T
+    \end{cases}
+    \label{eq:srampC}
+  \end{equation}
+
+  \begin{figure}
+
+    \TopFloatBoxes
+
+    \begin{floatrow}
+
+      \ffigbox{\caption{A smooth sawtooth wave.} \label{fig:ssaw}}{ \includegraphics[scale=0.5]{img/ssaw}}
+
+      \ffigbox{\caption{A smooth ramp wave.} \label{fig:sramp}}{ \includegraphics[scale=0.5]{img/sramp}}
+
+    \end{floatrow}
+
+  \end{figure}
+
+  %\pagebreak
+
+  \subsection{Sine Waves with Different Bit Widths}
+
+  The bit width of a waveform determines its resolution, i.e. the number of numerical values the amplitude of a signal can take. Common values for the resolution of a waveform are 64 bits, as provided by the C++ double-precision floating-point data type \texttt{double}, or 16 bits, as used by the Waveform Audio File Format (WAVE). Reducing the bit width of a waveform can give the impression of an "old-school" sound, as older synthesis systems from the 20th century were often limited to low bit-widths due to their less advanced hardware, compared to contemporary hardware configurations. Consequently, some digital synthesizers, such as Ableton's Operator, additionally provide waveforms with other bit widths such as 4 or 8 bits. Table \ref{tb:bitw} shows bit width values alongside the number of possibilities a sample can take when the given bit width is used. Note that in general, $n$ bits yield $2^n$ possible values. Figures \ref{fig:sine3} and \ref{fig:sine4} show sine waves with a bit width of 3 and 4 bits, respectively.
+
+  \begin{table}[th!]
+
+    \centering
+
+    \begin{tabular}[]{| l | l |}
+      \hline
+      \rowcolor[gray]{0.8}
+      Bit width & Possibilities\\\hline
+      2 & 4\\\hline
+      3 & 8\\\hline
+      4 & 16\\\hline
+      8 & 256\\\hline
+      16 & 65536\\\hline
+      32 & 4294967296\\\hline
+      64 & 18446744073709551616\\
+      \hline
+    \end{tabular}
+
+    \caption{Bit widths alongside the number of possible values a sample can take when the given bit width is used.}
+
+    \label{tb:bitw}
+
+  \end{table}
+
+  \begin{figure}[th!]
+    \includegraphics[scale=0.5]{img/sine3}
+    \caption{A 3-bit sine wave.}
+    \label{fig:sine3}
+  \end{figure}
+
+  \begin{figure}[th!]
+    \includegraphics[scale=0.5]{img/sine4}
+    \caption{A 4-bit sine wave.}
+    \label{fig:sine4}
+  \end{figure}
+
+  \pagebreak
+
+  \section{The Gibbs Phenomenon and the Lanczos Sigma Factor}
+
+  Examining Figure \ref{fig:gibbsb}, which displays an additively synthesized square wave function with 64 partials, one may observe that additive synthesis, the summation of sine waves to produce complex waveforms, produces an overshoot --- slight ripples or "horns" --- at the ends of each peak and trough of a waveform. This is known as the Gibbs Phenomenon, named after the American scientist Josiah Willard Gibbs who first described it in 1898, and is "the result of summing a finite series of partials rather than the infinite series of partials specified by the Fourier transform" \citebs{67}. Acoustically, this ringing artifact has little influence on the sound of the produced waveform. However, for modulation, this imperfection may render the resulting sound unsatisfactory. A common way to reduce the Gibbs Phenomenon is to apply the Lanczos Sigma ($\sigma$) Factor to each partial of a Fourier Series. This is often called \emph{sigma-approximation}. The definition of the Lanczos Sigma Factor is given in Equation \ref{eq:lanczos}, where $n$ is the current partial number and $M$ the total number of partials in a Fourier Summation. In the \texttt{additive} function shown in Tables \ref{code:add1} and \ref{code:add2}, the Lanczos Sigma Factor is implemented in lines 48 to 54. Figure \ref{fig:gibbsa} shows the same square wave from Figure \ref{fig:gibbsb} after sigma-approximation.
+
+  \begin{equation}
+    \sigma = sinc(\frac{n\pi}{M}) = \frac{\sin(\frac{n\pi}{M})}{\frac{n\pi}{M}}
+    \label{eq:lanczos}
+  \end{equation}
+
+  \begin{figure}
+    \includegraphics[scale=0.5]{img/gibbsb}
+    \caption{An additively synthesized square wave with 64 partials before sigma-approximation.}
+    \label{fig:gibbsb}
+  \end{figure}
+
+  \begin{figure}
+    \includegraphics[scale=0.5]{img/gibbsa}
+    \caption{An additively synthesized square wave with 64 partials after sigma-approximation.}
+    \label{fig:gibbsa}
+  \end{figure}
+
+  \pagebreak
+
+  \section{Wavetables}
+
+  Following the discussion of the creation of complex waveform, the two options for playing back waveforms in a digital synthesis system must be examined: continuous real-time calculation of waveform samples or lookup from a table that has been calculated once and then written to disk --- a so-called Wavetable. To keep matters short, the second method was found to be computationally more efficient and thus the better choice, as memory is a more easily expended resource than computational speed.
+
+  \subsection{Implementation}
+
+  A Wavetable is a table (practically speaking an array) in which one stores pre-calculated waveform amplitude values for lookup. This way, the computation of individual samples as shown in Sections 2.2.1 and 2.2.2 can be replaced by the incrementing of a table index variable and retrieval of samples by dereferencing of the array at the current index. If a table holds sample values for one period of a waveform, at a frequency of $1 Hz$, the frequency of the waveform can be adjusted during playback by multiplying the increment value by some factor other than one. "For example, if we increment by two [instead of one], we scan the table in half the time and produce a frequency twice the original frequency. Other increment values will yield proportionate frequencies." \citebs{80-81} The fundamental increment for a table index, $i_{fund}$, the value by which a table index must be incremented after each sample to traverse a waveform at a frequency of $1 Hz$, given the table length $L$ and the samplerate $f_{s}$, is shown in Equation \ref{eq:fundincr}. To alter the frequency $f$ of the played-back waveform, Equation \ref{eq:otherincr} should be used to calculate the appropriate increment value $i$.
+
+  \begin{equation}
+    i_{fund} = \frac{L}{f_{s}}
+    \label{eq:fundincr}
+  \end{equation}
+
+  \begin{equation}
+    i = i_{fund} \cdot f = \frac{L}{f_{s}} \cdot f
+    \label{eq:otherincr}
+  \end{equation}
+
+  \subsection{Interpolation}
+
+  For almost all configurations of frequencies, table lengths and sample rates, the table index $i$ produced by Equation \ref{eq:otherincr} will not be an integer. Since using a floating point number as an index for an array is a syntactically illegal operation in C++, there are two options. The first is to truncate or round the table index to an integer, thus "introducing a quantization error into the signal [...]". This is obviously a suboptimal solution which would result in a change of phase and consequently distortion. \citebs{84} The second option, interpolation, tries to approximate the true value from the sample at the current index and at the subsequent one. Interpolation is achieved by summation of the sample value at the floored, integral part of the table index, $\left \lfloor{i}\right \rfloor$, with the difference between this sample and the sample value at the next table index, $\left \lfloor {i}\right \rfloor + i$, multiplied by the fractional part of the table index, $i - \left \lfloor {i}\right \rfloor$. Table \ref{code:pseudointerp} displays the calculation of a sample by means of interpolation in pseudo-code and Table \ref{code:interp} in C++. (based on pseudo-code, Mitchell, 2008, p. 85)
+
+  \begin{table}
+    \code{interpolation.pseudo}
+    \caption{An interplation algorithm in pseudo-code.}
+    \label{code:pseudointerp}
+  \end{table}
+
+  \begin{table}
+    \code{interpolation.cpp}
+    \caption{Full C++ template function to interpolate a value from a table, given a fractional index. }
+    \label{code:interp}
+  \end{table}
+
+  \subsection{Table Length}
+
+  The length of the Wavetable must be chosen carefully to be both memory efficient and at the same time provide a decently accurate waveform resolution. An equation to calculate the size of a single wavetable in Kilobytes is given by Equation \ref{eq:tablesize}, where L is the table length and $N$ the number of bytes provided by the resolution of the data type used for samples, e.g. 8 bytes for the double-precision floating-point data type \texttt{double}.
+
+  \begin{equation}
+    Size = \frac{L \cdot N}{1024}
+    \label{eq:tablesize}
+  \end{equation}
+
+  \noindent Daniel R. Mitchell advises that the length of the table be a power of two for maximum efficiency. \citebs{86} Moreover, during an E-Mail exchange with Jari Kleimola, author of the 2005 master's thesis titled "Design and Implementation of a Software Sound Synthesizer", it was discovered that "as a rule of thumb", the table length should not exceed the processor cache size. A relevant excerpt of this e-mail exchange is depicted in Figure \ref{fig:jari}.
+
+  \begin{figure}
+    \includegraphics[scale=0.7]{img/jari}
+    \caption{An excerpt of an E-Mail exchange with Jari Kleimola.}
+    \label{fig:jari}
+  \end{figure}
+
+  \noindent Considering both pieces of advice, it was decided that a Wavetable size of 4096 ($2^12$), which translates to 32 KB of memory, would be suitable.\\
+
+  \noindent One important fact to mention, also discussed by Jari Kleimola as seen in Figure \ref{fig:jari}, is that because the interpolation algorithm from Table \ref{code:interp} must have access to the sample value at index $i+1$, $i$ being the current index, an additional sample must be appended to the Wavetable to avoid a \texttt{BAD\_ACCESS} error. This added sample usually has the same value as the first sample in the table to avoid a discontinuity. Therefore, the period of the waveform actually only fills 4095 of the 4096 indices of the Wavetable, as the 4096th sample is equal to the first.
+
+  \subsection{File Format}
+
+  For maximum efficiency, the Wavetables are not created at program startup but read from a binary file. To prevent the synthesizer program from accidentally reading faulty files, some simple identification string must be added to the file. Therefore, Wavetable files contain a 6-char ID string with the name of the synthesizer, Anthem, after which the 32 KB of Wavetable data follow. Additionally, Wavetable files end with a \texttt{.wavetable} file extension. Table \ref{code:wtfile} displays a function to read such a Wavetable file and Figure \ref{fig:wtfile} shows the first few bytes of a Wavetable file when opened as plain-text. The total size of a Wavetable file is exactly 32774 bytes, 32768 bytes (32KB) of Wavetable data and 6 bytes for the ID string.
+
+  \begin{table}[t!]
+    \code{file.cpp}
+    \caption{C++ code to read a Wavetable file. }
+    \label{code:wtfile}
+  \end{table}
+
+  \begin{figure}[h!]
+    \includegraphics[scale=0.7]{img/wtfile}
+    \caption{The first few bytes of a Wavetable file.}
+    \label{fig:wtfile}
+  \end{figure}
+
+  \section{Noise}
+
+  A noisy signal is a signal in which some or all samples take on random values. Generally, noise is considered as something to avoid, as it may lead to unwanted distortion of a signal. Nevertheless, noise can be used as an interesting effect when creating music. Its uses include, for example, the modeling of the sound of wind or the crashing of water waves against the shore of a beach. Some people enjoy the change in texture noise induces in a sound, others find noise relaxing and even listen to it while studying. \citebs{76} Unlike all audio signals\footnotemark{} presented so far, noise cannot\footnotemark{} be stored in a Wavetable, as it must be random throughout its duration and not repeat periodically for a proper sensation of truly \emph{random} noise.
+
+  \footnotetext{The term "waveform" would be incorrect here, as noise is not periodic and thus cannot really be seen as a waveform.}
+
+  \footnotetext{Noise could theoretically be stored in a Wavetable, of course. However, even a very large Wavetable destroys the randomness property to some extent and would thus invalidate the idea behind noise being truly random.}
+
+  \subsection{Colors of Noise}
+
+  The \emph{color} of a noise signal describes, acoustically speaking, the \emph{texture} or \emph{timbre} \footnotemark{} of the sound produced, as well as, scientifically speaking, the spectral power density and frequency content of the signal. The following paragraphs will examine and explain the creation of various noise colors, namely white, pink, red, violet and blue noise.
+
+  \footnotetext{Timbre is a rather vague term used by musicians and audio engineers to describe the properties, such as pitch, tone and intensity, of an audio signal's sound that distinguish it from other sounds. The \emph{Oxford Dictionary of English} defines timbre as "the character or quality of a musical sound or voice as distinct from its pitch and intensity".}
+
+  \subsubsection{White Noise}
+
+  White noise is a random signal in its purest and most un-filtered form. In such a signal, all possible frequencies are found with a uniform probability distribution, meaning they are distributed at equal intensity throughout the signal. The association of noise with colors actually stems from the connection between white noise and white light, which is said to be composed of almost all color components at an approximately equal distribution. Figure \ref{fig:wnoise} shows a typical white noise signal in the time domain, Figure \ref{fig:wnoisez} gives a close-up view of Figure \ref{fig:wnoise}, Figure \ref{fig:wnoisef} displays the frequency spectrum of a white noise signal and Table \ref{code:wnoise} shows the implementation of a simple C++ class to produce white noise.
+
+  \begin{figure}[h!]
+    \sidecap{A typical white noise signal.}{fig:wnoise}
+    {\includegraphics[scale=0.62]{img/wnoise}}
+  \end{figure}
+
+  \begin{figure}[h!]
+    \sidecap{A close-up view of Figure \ref{fig:wnoise}. This Figure shows nicely how individual sample values are completely random and independent from each other. }{fig:wnoisez}
+    {\includegraphics[scale=0.5]{img/wnoisez}}
+  \end{figure}
+
+  \begin{figure}[h!]
+    \includegraphics[scale=0.6]{img/wnoisef}
+    \caption{The signal from Figures \ref{fig:wnoise} and \ref{fig:wnoisez} in the frequency domain. This frequency spectrum analysis proves the fact that white noise has a "flat" frequency spectrum, meaning that all frequencies are  distributed uniformly and at (approximately) equal intensity. }
+    \label{fig:wnoisef}
+  \end{figure}
+
+  \begin{table}
+    \code{wnoise.cpp}
+    \caption{A simple C++ class to produce white noise. \texttt{rgen\_} is a random number generator following the Mersenne-Twister algorithm, to retrieve uniformly distributed values from the \texttt{dist\_} distribution in the range of -1 to 1. \texttt{tick()} returns a random white noise sample. }
+    \label{code:wnoise}
+  \end{table}
+
+  \subsubsection{Pink Noise}
+
+  Pink noise, sometimes referred to as $\frac{1}{f}$ noise, is white noise filtered with a 3dB/octave low-pass filter. In contrast to white noise, which has equal energy \emph{per frequency component}, pink noise has equal energy \emph{per octave}. This is a significant difference as humans hear on the basis of octaves (logarithmically), and not completely linearly, meaning that for the human ear the difference between 400 and 800 Hertz (one octave) sounds the same as the octave jump between 6 KHz and 11 Khz, even though the absolute difference between thoes two ranges is 4.6 Khz! To address this phenomenon, pink noise has more energy in the lower, narrower octave ranges and less energy in the wider, higher octave ranges. Therefore, the few high intensity values in the low frequency bands add up to equal the sum of lower intensity values in the wider, higher frequency octave bands. Figure \ref{fig:pnoisef} displays the frequency spectrum of pink noise. In the time domain, pink noise looks more or less like white noise, as can be seen in Figure \ref{fig:pnoiset}.
+
+  \begin{figure}[t!]
+    \includegraphics[scale=0.6]{img/pnoisef}
+    \caption{The frequency spectrum of pink noise. Note that the filter with which white noise was transformed into pink noise, discussed in a later chapter, is not perfect, resulting in the increase in frequency intensity towards the end of the spectrum. Ideally, the intensity should decrease linearly.}
+    \label{fig:pnoisef}
+  \end{figure}
+
+  \begin{figure}[t!]
+    \includegraphics[scale=0.7]{img/pnoiset}
+    \caption{Pink noise in the time domain.}
+    \label{fig:pnoiset}
+  \end{figure}
+
+  \subsubsection{Red Noise}
+
+  Red Noise has an energy decrease of 6dB/Octave. Another method of generating red noise besides filtering white noise appropriately is integrating a white noise signal, as shown in Equation \ref{eq:rnoise}. Red noise is also called "Brown" or "Brownian" noise. This name is not given for its visual equivalent, but rather for it's resemblance to a signal produced by Brownian motion or "Random Walk", "the erratic random movement of microscopic particles in a fluid, as a result of continuous bombardment from molecules of the surrounding medium." (Oxford Dictionary of English, 2003). Figure \ref{fig:rnoisef} shows a red noise signal in the frequency domain and Figure \ref{fig:rnoiset} in the time domain.
+
+  \begin{equation}
+    N_{red}(t) = \int_{0}^{t} N_{white}(t)dt
+    \label{eq:rnoise}
+  \end{equation}
+
+  \begin{figure}[t!]
+    \includegraphics[scale=0.6]{img/rnoisef}
+    \caption{Red noise in the frequency domain.}
+    \label{fig:rnoisef}
+  \end{figure}
+
+  \begin{figure}[t!]
+    \includegraphics[scale=0.7]{img/rnoiset}
+    \caption{Red noise in the time domain.}
+    \label{fig:rnoiset}
+  \end{figure}
+
+  \subsubsection{Blue Noise}
+
+  Wherease pink and red noise show a decrease in intensity per frequency component, blue noise exhibits an \textbf{increase} in intensity by 3dB/Octave, making it sound like a high-pitched version of white noise. Blue noise can be created by making the filter used for pink noise a high-pass filter instead of a low-pass one, meaning that higher frequencies are filtered less than lower ones. Figure \ref{fig:bnoisef} shows a frequency spectrum of the blue noise created for the purpose of this thesis. The reader may question as to why the spectrum shown looks nothing like what was just described as the ideal spectrum of blue noise. As matter of fact, it was discovered that a frequency spectrum of this kind, combined with a decreased gain of -3dB, produces the same sound as an ideal blue noise signal. In the time domain, blue noise looks similar to the white noise depicted in Figure \ref{fig:wnoise}.
+
+  \begin{figure}[hb!]
+    \includegraphics[scale=0.6]{img/bnoisef}
+    \caption{Blue noise in the frequency domain.}
+    \label{fig:bnoisef}
+  \end{figure}
+
+  \pagebreak
+
+  \subsubsection{Violet Noise}
+
+  What blue noise is to pink noise, violet noise is to red noise. Violet noise increases by 6dB per octave and can also be created by differentiating a white noise signal, just as red noise is the result of integrating white noise. Acoustically, violet noise sounds like a very high-pitched "hissing" sound. Equation \ref{eq:vnoise} shows how violet noise can be produced as a derivative of white noise and Figure \ref{fig:vnoisef} shows the frequency response of a violet noise signal.
+
+  \begin{equation}
+    N_{violet} = \frac{dN_{white}(t)}{dt}
+    \label{eq:vnoise}
+  \end{equation}
+
+  \begin{figure}
+    \includegraphics[scale=0.6]{img/vnoisef}
+    \caption{The frequency spectrum of a violet noise signal.}
+    \label{fig:vnoisef}
+  \end{figure}
