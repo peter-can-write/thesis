@@ -1,7 +1,5 @@
 double FM::modulate_(index_t carrier, double value)
 {
-    if (! ops_[carrier]->isActive()) return 0;
-    
     ops_[carrier]->modulateFrequency(value);
     
     return ops_[carrier]->tick();
@@ -9,8 +7,6 @@ double FM::modulate_(index_t carrier, double value)
 
 double FM::add_(index_t carrier, double value)
 {
-    if (! ops_[carrier]->isActive()) return 0;
-    
     return ops_[carrier]->tick() + value;
 }
 

@@ -9,6 +9,4 @@ for(int i = 1; i <= 128; i += 2)
   vec.push_back(Partial(i,amp));
 }
 
-double* buffer = additive(vec.begin(),
-                          vec.end(),
-                          48000);
+double* buffer = additive(vec.begin(), vec.end(), 48000);

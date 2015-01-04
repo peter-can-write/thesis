@@ -38,9 +38,9 @@
 
 \usepackage{hyperref}
 
-\usepackage{lipsum}
-
 \setlength{\headheight}{15pt}
+
+\setlength{\parindent}{0pt}
 
 \begin{document}
 
@@ -90,61 +90,49 @@ morecomment=[l][\color{red}]{\#}
 
 \newfloatcommand{capbtabbox}{table}[][\FBwidth]
 
-\newenvironment{blockquote}{%
-\par%
+\newenvironment{blockquote}{
+\par
 \medskip
 \leftskip=2em\rightskip=2em%
-\noindent\ignorespaces}{%
+\noindent\ignorespaces}{
 \par\medskip}
 
-\title{Developing a Digital Synthesizer in C++}
-
-\author{
-Peter Goldsborough \\
-\href{mailto:petergoldsborough@hotmail.com}{petergoldsborough@hotmail.com}\\
-8A\\\\
-Supervised by Prof. Martin Kastner\\\\
-BG | BRG St.Martin\\
-St.Martiner Stra{\ss}e 7\\
-A-9500 Villach
-}
-
-\date{\today}
-
-\maketitle
+\input{chapters/title.tex}
 
 \input{chapters/abstract.tex}
 
-\input{chapters/ack.tex}
+\input{chapters/acknowledgements.tex}
 
 \tableofcontents
 
-\input{chapters/chapter01.tex}
+\input{chapters/introduction.tex}
 
-\input{chapters/chapter02.tex}
+\input{chapters/chapter1.tex}
 
-\input{chapters/chapter03.tex}
+\input{chapters/chapter2.tex}
 
-\input{chapters/chapter04.tex}
+\input{chapters/chapter3.tex}
 
-\input{chapters/chapter05.tex}
+\input{chapters/chapter4.tex}
 
-\input{chapters/chapter06.tex}
+\input{chapters/chapter5.tex}
 
-\input{chapters/chapter07.tex}
+\input{chapters/chapter6.tex}
 
-\input{chapters/chapter08.tex}
+\input{chapters/chapter7.tex}
 
-\input{chapters/chapter09.tex}
+\input{chapters/chapter8.tex}
 
-\input{chapters/chapter10.tex}
+\input{chapters/chapter9.tex}
 
-\input{chapters/chapter11.tex}
+\input{chapters/conclusion.tex}
 
 \input{chapters/appendix.tex}
 
-\input{chapters/bib.tex}
+\input{chapters/bibliography.tex}
 
 \listoffigures
+
+\input{chapters/declaration.tex}
 
 \end{document}
