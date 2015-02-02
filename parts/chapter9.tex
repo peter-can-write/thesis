@@ -1,0 +1,39 @@
+\chapter{MIDI}
+
+While the previous chapter discussed how to output from a synthesizer, this chapter will examine how to input to it. The standard way to communicate with any digital instrument in real-time is the \emph{Musical Instrument Digital Interface} (MIDI) protocol, which specifies the physical or virtual connections and the transmision format used between, for example, a keyboard and a music synthesizer. A MIDI message is composed of a sequence of bytes that have different meanings and can control a variety of parameters and settings in a digital synthesizer. For example, MIDI can be used to control the amplitude of an Operator or the Attack time of an Envelope. However, the most important use of MIDI is to send musical notes, which will be discussed in this chapter. \vspace{\baselineskip}
+
+The first transmission byte of any MIDI message, no matter its purpose, is called the STATUS byte. The most signficant bit (MSB\footnotemark[1]{}) of a STATUS byte is set to 1, while all other MIDI transmission bytes have their MSB set to 0. The other three bits of a STATUS byte's high nibble\footnotemark[2]{} are reserved for specifying other information about the message. For example, when sending musical notes, having the least signficiant bit (LSB) of the high nibble set to 1 signifies a NOTE ON signal, meaning the musician pressed a key on his or her keyboard. Conversely, if this bit is set to 0, it means that the musician released the key. This is called a NOTE OFF signal. The low nibble of a STATUS byte, meaning the four least significant bits, specify the channel number. MIDI allows transmissions to be sent over any of 16 channels, numbered 0 to 15, making it possible to connect a digital synthesizer to up to 16 different physical or virtual instruments. Message \ref{msg:status} gives an example of a STATUS byte, as can be identified by the fact that the MSB is set to 1. Because the LSB of the high nibble is also set to 1, this message stands for a NOTE ON signal. In this example, the message is sent over channel number 4 (${0100}_{2}$). (Vandenneucker, 2012)
+
+\begin{equation}
+  {10010100}_{2}
+  \label{msg:status}
+\end{equation}
+
+\footnotetext[1]{The most signficiant bit (MSB) refers to the bit with the highest value in a byte. When numbering a bit from 7 to 0, the 7th bit has a value of 128 when set and is the most signficant bit, while the 0th bit has a value of 1 when set and is the least signficant bit (LSB).}
+
+\footnotetext[2]{A nibble is one half of a byte. The "high" nibble refers to the four most significant bits of a byte (bits 7-4) and the "low" nibble to the four least significant bits (bits 3-0).}
+
+\pagebreak
+
+\noindent All subsequent bytes of a MIDI message, after the STATUS byte, are referred to as DATA bytes and specify any other information a digital musical instrument may need. Because the MSB of any MIDI byte is reserved to give information about its type (1 for STATUS, 0 for DATA), DATA bytes have 7 bits available to transmit actual data. For this discussion, only musical note messages are interesting. Therefore, the space of 128 values (0-127) available to a DATA byte means that a music keyboard can send up to 128 different musical notes to a digital synthesizer, that correspond and can be converted to certain frequencies. For example, piano key A4 is defined as MIDI note 69 and has a frequency of 440 Hz. Equation \ref{eq:miditofreq} gives a formula to calculate a frequency value $f$ from a MIDI note $n$ and Equation \ref{eq:freqtomidi} shows the reverse process. Message \ref{msg:note} is a DATA byte that signifies that MIDI note 60 should be played, which stands for piano key C4 and a frequency of ca. 261.63 Hertz. (Vandenneucker, 2012)
+
+\begin{equation}
+  f = \sqrt[12]{2^{n-69}} \cdot 440
+  \label{eq:miditofreq}
+\end{equation}
+
+\begin{equation}
+  n = 12 \cdot log_{2}(\frac{f}{440}) + 69
+  \label{eq:freqtomidi}
+\end{equation}
+
+\begin{equation}
+  {00111100}_{2}
+  \label{msg:note}
+\end{equation}
+
+\noindent MIDI messages for musical notes also include one more DATA byte, which specifies the note's velocity (how hard the musician hit the piano key), again in a range of 0 to 127. This information can be used by the creator of digital synthesizer, but it is not a must. The synthesizer created for this thesis only checks if the velocity is equal to 0, which is interpreted in the same way as a NOTE OFF signal.
+
+\subsubsection{Implementation}
+
+In \emph{Anthem}, MIDI communication was implemented in the \texttt{MIDI} class, which makes use of the Open-Source RtMidi library\footnote[3]{Found at: \url{http://www.music.mcgill.ca/~gary/rtmidi/index.html}}. Similar to how direct audio output was implemented, also the \texttt{MIDI} class has a call-back method, which is invoked whenever the RtMidi library detects a new MIDI message. Messages are then interpreted and Operators' frequencies updated accordingly.
